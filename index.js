@@ -6,6 +6,8 @@ import bodyParser from 'body-parser'
 app.use(bodyParser.json())
 import cookieParser from 'cookie-parser'
 app.use(cookieParser())
+import cors from 'cors'
+app.use(cors())
 const port = process.env.PORT || 3001
 
 
@@ -16,11 +18,6 @@ import book from './book.js'
 import user from './user.js'
 
 // app
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*")
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
-    next()
-})
 app.get('/', (req, res) => {
     res.send('<h1>sepertinya antum sedang kehilangan arah</h1><a href="https://mcwooden.netlify.app/">kembali ke aplikasi</a>')
 })
