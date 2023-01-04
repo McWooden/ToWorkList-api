@@ -6,14 +6,14 @@ import bodyParser from 'body-parser'
 app.use(bodyParser.json())
 import cookieParser from 'cookie-parser'
 app.use(cookieParser())
-import cors from 'cors'
-app.use(cors())
 const port = process.env.PORT || 3001
 
 
 
 import './mongoose.js'
 import { connectDB } from './mongoose.js'
+import cors from 'cors'
+app.use(cors())
 import book from './book.js'
 import user from './user.js'
 
