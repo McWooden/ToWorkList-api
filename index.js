@@ -11,6 +11,7 @@ const port = process.env.PORT || 3001
 
 
 import './mongoose.js'
+import { connectDB } from './mongoose.js'
 import book from './book.js'
 import user from './user.js'
 
@@ -71,6 +72,8 @@ app.use('/user', user)
 
 
 // Mulai server
-app.listen(process.env.PORT, () => {
-    console.log(`Server berjalan di port ${process.env.PORT}`)
+connectDB().then(() => {
+    app.listen(port, () => {
+        console.log("listening for requests")
+    })
 })
