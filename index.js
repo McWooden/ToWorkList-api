@@ -6,6 +6,8 @@ import bodyParser from 'body-parser'
 app.use(bodyParser.json())
 import cookieParser from 'cookie-parser'
 app.use(cookieParser())
+const port = process.env.PORT || 3001
+
 
 
 import './mongoose.js'
