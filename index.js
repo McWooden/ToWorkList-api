@@ -71,6 +71,6 @@ app.use('/user', user)
 // Mulai server
 connectDB().then(() => {
     app.listen(port, () => {
-        console.log("listening for requests")
+        console.log("listening for requests", port)
     })
 })

@@ -17,6 +17,7 @@ export const User = mongoose.model('users', {
     avatar: String,
     email: String,
     password: String,
+    created_at: String,
     tag: String
 })
 
