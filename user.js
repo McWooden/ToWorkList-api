@@ -54,29 +54,50 @@ router.put('/login/google', async (req, res) => {
 router.put('/login/form', async (req, res) => {
     try {
         const {_doc: user} = await User.findOne({ password: req.body.password, nickname: new RegExp(`^${req.body.nickname}$`, 'i') })
-        console.log(req.body)
-        if (user) {
-            const {__v, password, ...account} = user
-            console.log(account)
-            res.send(account)
-        } else {
-            res.send(`akun anda tidak ditemukan`)
-        }
+        const {__v, password, ...account} = user
+        res.send(account)
     } catch (err) {
-        res.status(404).send('Terjadi masalah saat mencari akun')
+        res.status(404).send('akun tidak ditemukan')
     }
 })
 
-router.post('/', async (req, res) => {
-    const old = await User.findOneAndUpdate({email: req.body.email}, {
-        $set: {
-            nickname : req.body.nickname,
-            picture : req.body.picture,
-            password : req.body.password
+router.put('/pemulihan', (req, res) => {
+    const credential = jwt_decode(req.body.credential)
+    if (credential.email_verified) {
+        User.findOne({ email: credential.email }, (error, user) => {
+            if (error) {
+                res.status(500).send('Terjadi kesalahan saat mencari akun')
+            } else if (!user) {
+                res.status(404).send('Akun tidak ditemukan')
+            } else {
+                const { __v, password, ...account } = user._doc
+                res.send(account)
+            }
+        })
+    } else {
+        res.send('who are you?')
+    }
+})
+
+router.post('/pemulihan', (req, res) => {
+    User.findOneAndUpdate(
+        { email: req.body.email },
+        { password: req.body.password },
+        { new: true },
+        (error, user) => {
+            if (error) {
+                res.status(500).send('Terjadi kesalahan saat mengganti password')
+            } else if (!user) {
+                res.status(404).send('Akun tidak ditemukan')
+            } else {
+                delete user.password
+                res.send(user)
+            }
         }
-    })
-    console.log(old)
-    if (old) return res.send({...old, message: 'Akun berhasil diperbarui'})
+    )
+})
+
+router.post('/', async (req, res) => {
     const randomNumber = generate4DigitNumber()
     let data = new User({
         name: req.body.name,
@@ -87,7 +108,9 @@ router.post('/', async (req, res) => {
         password: req.body.password,
         tag: randomNumber
     })
+    const {_doc: user} = data
+    let {password, ...rest} = user
     data.save()
-    res.send({...data, message: 'Akun berhasil dibuat'})
+    res.send({rest, message: 'Akun berhasil dibuat'})
 })
 export default router
