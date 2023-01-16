@@ -17,7 +17,7 @@ router.get('/', (req, res) => {
 })
 // get rooms
 router.get('/:bookId/get/pages/details', (req, res) => {
-    Book.findById(req.params.bookId).select('pages.details').exec((err, pages) => {
+    Book.findById(req.params.bookId).select('pages.details pages._id').exec((err, pages) => {
         if(err) {
             return res.status(500).send(err)
         }
