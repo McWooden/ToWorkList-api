@@ -15,13 +15,21 @@ router.get('/', (req, res) => {
         res.send(books)
     })
 })
-// get rooms
-router.get('/:bookId/get/pages/details', (req, res) => {
-    Book.findById(req.params.bookId).select('pages.details pages._id').exec((err, pages) => {
+router.get('/:bookId/get/users', (req, res) => {
+    Book.findById(req.params.bookId).select('users').exec((err, pages) => {
         if(err) {
             return res.status(500).send(err)
         }
-        res.send(pages)
+        res.json(pages)
+    })
+})
+// get rooms
+router.get('/:bookId/get/pages/details', (req, res) => {
+    Book.findById(req.params.bookId).select('pages.details pages._id users').exec((err, pages) => {
+        if(err) {
+            return res.status(500).send(err)
+        }
+        res.json(pages)
     })
 })
 // get list
