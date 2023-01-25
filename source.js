@@ -40,7 +40,7 @@ router.post('/chat/:pageId/:listId', (req, res) => {
         res.status(404).json({ success: false, error: err })
         console.log(err)
     })
-});
+})
 
 
 router.get('/page/:pageId', (req, res) => {
@@ -51,6 +51,45 @@ router.get('/page/:pageId', (req, res) => {
         } else {
             res.json(doc.pages[0])
         }
+    })
+})
+
+router.get('/uncheck/:pageId/:listId/:nickname', (req, res) => {
+    Book.findOneAndUpdate(
+        { 'pages': {$elemMatch: { _id: req.params.pageId, 'list': {$elemMatch: { _id: req.params.listId }}}}}, 
+        {
+            $pull: {
+                'pages.$.list.0.dones': req.params.nickname
+            }
+        }, 
+        { new: true }
+    ).then(result => {
+        if (result) {
+            res.json({ success: true, data: result })
+        } else {
+            res.status(404).json({ success: false, error: 'Page or List not found'})
+        }
+    }).catch(err => {
+        res.status(404).json({ success: false, error: err })
+    })
+})
+router.get('/checkTodo/:pageId/:listId/:nickname', (req, res) => {
+    Book.findOneAndUpdate(
+        { 'pages': {$elemMatch: { _id: req.params.pageId, 'list': {$elemMatch: { _id: req.params.listId }}}}}, 
+        {
+            $addToSet: {
+                'pages.$.list.0.dones': req.params.nickname
+            }
+        }, 
+        { new: true }
+    ).then(result => {
+        if (result) {
+            res.json({ success: true, data: result })
+        } else {
+            res.status(404).json({ success: false, error: 'Page or List not found'})
+        }
+    }).catch(err => {
+        res.status(404).json({ success: false, error: err })
     })
 })
 
