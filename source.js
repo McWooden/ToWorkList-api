@@ -16,32 +16,64 @@ router.get('/list/:pageId/:listId', (req, res) => {
 })
 
 router.post('/chat/:pageId/:listId', (req, res) => {
-    Book.findOneAndUpdate(
-        { 'pages': {$elemMatch: { _id: req.params.pageId, 'list': {$elemMatch: { _id: req.params.listId }}}}}, 
-        {
-            $push: {
-                'pages.$.list.0.chat': {
-                    nickname: req.body.nickname,
-                    msg: req.body.msg,
-                    time: `${new Date().getHours().toString().padStart(2, '0')}.${new Date().getMinutes().toString().padStart(2, '0')}`,
-                    date: `${new Date().getMonth().toString().padStart(2, '0')}/${new Date().getDate().toString().padStart(2, '0')}/${new Date().getFullYear().toString().slice(-2)}`
-                }
+    const query = {
+        'pages': {$elemMatch: { _id: req.params.pageId, 'list': {$elemMatch: { _id: req.params.listId }}}}
+    }
+    const update = {
+        $push: {
+            'pages.$[page].list.$[list].chat': {
+                nickname: req.body.nickname,
+                msg: req.body.msg,
+                time: `${new Date().getHours().toString().padStart(2, '0')}.${new Date().getMinutes().toString().padStart(2, '0')}`,
+                date: `${new Date().getMonth() + 1}/${new Date().getDate()}/${new Date().getFullYear()}`
             }
-        }, 
-        { new: true }
-    ).then(result => {
+        }
+    }
+    const options = { 
+        new: true,
+        arrayFilters: [{ 'page._id': req.params.pageId }, { 'list._id': req.params.listId }]
+    }
+    Book.findOneAndUpdate(query, update, options)
+    .then(result => {
         if (result) {
-            res.json({ success: true, data: result })
-            console.log('successfull')
+            const page = result.pages.find(obj => obj._id.toString() === req.params.pageId)
+            const list = page.list.find(obj => obj._id.toString() === req.params.listId)
+            res.json({ success: true, data: list })
         } else {
             res.status(404).json({ success: false, error: 'Page or List not found' })
         }
     }).catch(err => {
-        res.status(404).json({ success: false, error: err })
         console.log(err)
+        res.status(404).json({ success: false, error: err })
     })
 })
-
+router.put('/chat/:pageId/:listId/:chatId', (req, res) => {
+    const query = {
+        'pages': {$elemMatch: { _id: req.params.pageId, 'list': {$elemMatch: { _id: req.params.listId, 'chat': {$elemMatch: {_id: req.params.chatId}}}}}}
+    }
+    const update = {
+        $set: {
+            'pages.$[page].list.$[list].chat.$[chat].msg': 'Pesan ini telah dihapus',
+        }
+    }
+    const options = { 
+        new: true,
+        arrayFilters: [{ 'page._id': req.params.pageId }, { 'list._id': req.params.listId }, { 'chat._id': req.params.chatId }]
+    }
+    Book.findOneAndUpdate(query, update, options)
+    .then(result => {
+        if (result) {
+            const page = result.pages.find(obj => obj._id.toString() === req.params.pageId)
+            const list = page.list.find(obj => obj._id.toString() === req.params.listId)
+            res.json({ success: true, data: list })
+        } else {
+            res.status(404).json({ success: false, error: 'Page or List not found' })
+        }
+    }).catch(err => {
+        console.log(err)
+        res.status(404).json({ success: false, error: err })
+    })
+})
 
 router.get('/page/:pageId', (req, res) => {
     Book.findOne({'pages': { $elemMatch: { _id: req.params.pageId } }}, {'pages.$': 1})
@@ -53,29 +85,9 @@ router.get('/page/:pageId', (req, res) => {
         }
     })
 })
-
-router.get('/uncheck/:pageId/:listId/:nickname', (req, res) => {
-    Book.findOneAndUpdate(
-        { 'pages': {$elemMatch: { _id: req.params.pageId, 'list': {$elemMatch: { _id: req.params.listId }}}}}, 
-        {
-            $pull: {
-                'pages.$.list.0.dones': req.params.nickname
-            }
-        }, 
-        { new: true }
-    ).then(result => {
-        if (result) {
-            res.json({ success: true, data: result })
-        } else {
-            res.status(404).json({ success: false, error: 'Page or List not found'})
-        }
-    }).catch(err => {
-        res.status(404).json({ success: false, error: err })
-    })
-})
 router.post('/addTodo/:pageId', (req, res) => {
     const currTime = `${new Date().getHours().toString().padStart(2, '0')}.${new Date().getMinutes().toString().padStart(2, '0')}`
-    const currDate = `${new Date().getMonth().toString().padStart(2, '0')}/${new Date().getDate().toString().padStart(2, '0')}/${new Date().getFullYear().toString().slice(-2)}`
+    const currDate = `${new Date().getMonth() + 1}/${new Date().getDate()}/${new Date().getFullYear()}`
     const newTodo = {
         details: {
             item_title: req.body.item_title,
@@ -103,34 +115,73 @@ router.post('/addTodo/:pageId', (req, res) => {
             date: currDate
         }]
     }
-    Book.updateOne({'pages': { $elemMatch: { _id: req.params.pageId } }}, { $push: { 'pages.0.list': newTodo }})
+    Book.findOneAndUpdate({'pages': { $elemMatch: { _id: req.params.pageId } }}, { $push: { 'pages.0.list': newTodo }}, {new: true}).select('pages')
     .exec((err, doc) => {
         if (err) {
             res.status(500).json({error: err.message})
-            console.log(err)
         } else {
-            res.json(doc)
+            const page = doc.pages.id(req.params.pageId)
+            res.json(page)
+        }
+    })
+})
+router.delete('/addTodo/:pageId/:listId', (req, res) => {
+    Book.findOneAndUpdate({'pages': { $elemMatch: { _id: req.params.pageId } }}, { $pull: { 'pages.0.list': {_id : req.params.listId} }}, {new: true}).select('pages')
+    .exec((err, doc) => {
+        if (err) {
+            res.status(500).json({error: err.message})
+        } else {
+            const page = doc.pages.id(req.params.pageId)
+            res.json(page)
         }
     })
 })
 
-router.get('/checkTodo/:pageId/:listId/:nickname', (req, res) => {
+router.get('/uncheck/:pageId/:listId/:nickname', (req, res) => {
     Book.findOneAndUpdate(
         { 'pages': {$elemMatch: { _id: req.params.pageId, 'list': {$elemMatch: { _id: req.params.listId }}}}}, 
         {
-            $addToSet: {
-                'pages.$.list.0.dones': req.params.nickname
+            $pull: {
+                'pages.$[i].list.$[j].dones': req.params.nickname
             }
         }, 
-        { new: true }
+        { 
+            new: true,
+            arrayFilters: [{ 'i._id': req.params.pageId }, { 'j._id': req.params.listId }]
+        }
     ).then(result => {
         if (result) {
-            res.json({ success: true, data: result })
+            const page = result.pages.id(req.params.pageId)
+            res.json(page)
         } else {
             res.status(404).json({ success: false, error: 'Page or List not found'})
         }
     }).catch(err => {
         res.status(404).json({ success: false, error: err })
+    })
+})
+router.get('/checkTodo/:pageId/:listId/:nickname', (req, res) => {
+    Book.findOneAndUpdate(
+        { 'pages': {$elemMatch: { _id: req.params.pageId, 'list': {$elemMatch: { _id: req.params.listId }}}}}, 
+        {
+            $addToSet: {
+                'pages.$[i].list.$[j].dones': req.params.nickname
+            },
+        }, 
+        { 
+            new: true,
+            arrayFilters: [{ 'i._id': req.params.pageId }, { 'j._id': req.params.listId }]
+        }
+    ).then(result => {
+        if (result) {
+            const page = result.pages.id(req.params.pageId)
+            res.json(page)
+        } else {
+            res.status(404).json({ success: false, error: 'Page or List not found'})
+        }
+    }).catch(err => {
+        res.status(404).json({ success: false, error: err })
+        console.log(err)
     })
 })
 
