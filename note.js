@@ -35,6 +35,35 @@ router.post('/:pageId/:listId', (req, res) => {
     })
 })
 
+router.put('/:pageId/:listId/:noteId', (req, res) => {
+    const query = {
+        'pages': {$elemMatch: { _id: req.params.pageId, 'list': {$elemMatch: { _id: req.params.listId, 'notes': {$elemMatch: {_id: req.params.noteId}}}}}}
+    }
+    const update = {
+        $set: {
+            'pages.$[page].list.$[list].notes.$[note].context': req.body.context,
+            'pages.$[page].list.$[list].notes.$[note].date': `${new Date().getMonth() + 1}/${new Date().getDate()}/${new Date().getFullYear()}`,
+        }
+    }
+    const options = { 
+        new: true,
+        arrayFilters: [{ 'page._id': req.params.pageId }, { 'list._id': req.params.listId }, { 'note._id': req.params.noteId }]
+    }
+    Book.findOneAndUpdate(query, update, options)
+    .then(result => {
+        if (result) {
+            const page = result.pages.find(obj => obj._id.toString() === req.params.pageId)
+            const list = page.list.find(obj => obj._id.toString() === req.params.listId)
+            res.json(list)
+        } else {
+            res.status(404).json({ success: false, error: 'Page or List not found' })
+        }
+    }).catch(err => {
+        console.log(err)
+        res.status(404).json({ success: false, error: err })
+    })
+})
+
 router.delete('/:pageId/:listId/:noteId', (req, res) => {
     const query = {
         'pages': {$elemMatch: { _id: req.params.pageId, 'list': {$elemMatch: { _id: req.params.listId, 'notes': {$elemMatch: {_id: req.params.noteId}}}}}}
