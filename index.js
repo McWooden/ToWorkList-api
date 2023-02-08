@@ -19,6 +19,7 @@ import user from './user.js'
 import source from './source.js'
 import chat from './chat.js'
 import notes from './note.js'
+import image from './image.js'
 
 // import { createServer } from "http";
 // import { Server } from "socket.io"
@@ -57,6 +58,7 @@ app.use('/user', user)
 app.use('/source', source)
 app.use('/notes', notes)
 app.use('/chat', chat)
+app.use('/image', image)
 
 
 

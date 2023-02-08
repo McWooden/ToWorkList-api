@@ -67,7 +67,7 @@ router.get('/:bookId/add/page', async (req, res) => {
                         color: 'royalblue'
                     }],
                     images: [{
-                        pic: 'https://source.unsplash.com/random/introduce',
+                        pic: 'hello',
                         desc: 'gambar disimpan disini',
                         date: '12/30/2022',
                         by: 'developer'
