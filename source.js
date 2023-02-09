@@ -43,7 +43,7 @@ router.post('/addTodo/:pageId', (req, res) => {
             color: 'royalblue'
         }],
         images: [{
-            pic: 'https://source.unsplash.com/random/introduce',
+            pic: 'hello',
             desc: 'gambar disimpan disini',
             date: currDate,
             by: 'mimo'
