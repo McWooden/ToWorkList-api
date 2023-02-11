@@ -79,6 +79,35 @@ router.delete('/addTodo/:pageId/:listId', (req, res) => {
         }
     })
 })
+router.put('/addTodo/:pageId/:listId', (req, res) => {
+    const query = {
+        'pages': {$elemMatch: { _id: req.params.pageId, 'list': {$elemMatch: { _id: req.params.listId}}}}
+    }
+    const update = {
+        $set: {
+            'pages.$[page].list.$[list].details.color': req.body.color,
+            'pages.$[page].list.$[list].details.desc': req.body.desc,
+            'pages.$[page].list.$[list].details.deadline': req.body.deadline,
+            'pages.$[page].list.$[list].details.item_title': req.body.item_title,
+        }
+    }
+    const options = { 
+        new: true,
+        arrayFilters: [{ 'page._id': req.params.pageId }, { 'list._id': req.params.listId }]
+    }
+    Book.findOneAndUpdate(query, update, options)
+    .then(result => {
+        if (result) {
+            const page = result.pages.id(req.params.pageId)
+            res.json(page)
+        } else {
+            res.status(404).json({ success: false, error: 'Page or List not found' })
+        }
+    }).catch(err => {
+        console.log(err)
+        res.status(404).json({ success: false, error: err })
+    })
+})
 
 router.get('/uncheck/:pageId/:listId/:nickname', (req, res) => {
     Book.findOneAndUpdate(
