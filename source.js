@@ -67,16 +67,32 @@ router.post('/addTodo/:pageId', (req, res) => {
 })
 
 router.delete('/addTodo/:pageId/:listId', (req, res) => {
-    Book.findOneAndUpdate({'pages': { $elemMatch: { _id: req.params.pageId } }}, 
-                            { $pull: { 'pages.0.list': {_id : req.params.listId} }}, 
-                            {new: true}).select('pages')
-    .exec((err, doc) => {
-        if (err) {
-            res.status(500).json({error: err.message})
+    const query = {
+        'pages': { $elemMatch: { _id: req.params.pageId } }
+    }
+    const update = {
+        $pull: { 'pages.$[page].list': {_id : req.params.listId} }
+    }
+    const options = { 
+        new: true,
+        arrayFilters: [{ 'page._id': req.params.pageId }]
+    }
+    Book.findOneAndUpdate(query, update, options)
+    .then(result => {
+        if (result) {
+            const page = result.pages.id(req.params.pageId)
+            if (req.query.returnPage) {
+                res.json(page)
+            } else {
+                const list = page.list.id(req.params.listId)
+                res.json(list)
+            }
         } else {
-            const page = doc.pages.id(req.params.pageId)
-            res.json(page)
+            res.status(404).json({ success: false, error: 'Page or List not found' })
         }
+    }).catch(err => {
+        console.log(err)
+        res.status(404).json({ success: false, error: err })
     })
 })
 router.put('/addTodo/:pageId/:listId', (req, res) => {
@@ -99,7 +115,12 @@ router.put('/addTodo/:pageId/:listId', (req, res) => {
     .then(result => {
         if (result) {
             const page = result.pages.id(req.params.pageId)
-            res.json(page)
+            if (req.body.returnPage) {
+                res.json(page)
+            } else {
+                const list = page.list.id(req.params.listId)
+                res.json(list)
+            }
         } else {
             res.status(404).json({ success: false, error: 'Page or List not found' })
         }
@@ -108,6 +129,7 @@ router.put('/addTodo/:pageId/:listId', (req, res) => {
         res.status(404).json({ success: false, error: err })
     })
 })
+
 
 router.get('/uncheck/:pageId/:listId/:nickname', (req, res) => {
     Book.findOneAndUpdate(
