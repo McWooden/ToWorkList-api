@@ -1,6 +1,7 @@
 import express from 'express'
 const router = express.Router()
 import { Book } from './schema.js'
+import { currDate } from './utils.js'
 router.get('/', (req, res) => {
     Book.find({}).select('profile').exec((err, books) => {
         if(err) {
@@ -39,6 +40,61 @@ router.get('/:bookId/get/pages/list', (req, res) => {
             return res.status(500).send(err)
         }
         res.send(pages)
+    })
+})
+// add page
+router.put('/:bookId/page', (req, res) => {
+    const currentDate = currDate()
+    const data = {
+        details: {
+            page_title: req.body.page_title,
+            icon: req.body.icon,
+            jadwal_url: 'https://source.unsplash.com/random/Welcome-buku panduan',
+        },
+        list: [{
+            details: {
+                item_title: 'First list',
+                desc: 'ini adalah list pertamamu',
+                color: 'yellowgreen',
+                deadline: currentDate
+            },
+            dones: [],
+            notes: [{
+                context: 'catatan tentang list berada disini',
+                by: 'developer',
+                date: currentDate,
+                color: 'royalblue'
+            }],
+            images: [{
+                pic: 'https://source.unsplash.com/random/introduce',
+                desc: 'gambar disimpan disini',
+                date: currentDate,
+                by: 'developer'
+            }],
+            chat: [{
+                nickname: 'Mimo',
+                msg: 'kamu bisa membahas list disini',
+                time: '22.50',
+                date: currentDate
+            }]
+        }]
+    }
+
+    const query = { '_id': req.params.bookId }
+    const update = { $push: { 'pages': data } }
+    const options = { new: true }
+
+    Book.findOneAndUpdate(query, update, options)
+    .then(result => {
+        if (result) {
+            const page = result.pages.find(obj => obj._id.toString() === req.params.pageId)
+            res.json(page)
+        } else {
+            res.status(404).json({ success: false, error: 'Page or List not found' })
+        }
+    }).catch(err => {
+        console.log(err)
+        res.status(404).json({ success: false, error: err })
     })
 })
 // add
@@ -88,10 +144,12 @@ router.get('/:bookId/add/page', async (req, res) => {
     }
 })
 router.get('/addBook', (req, res) => {
+    const currentDate = currDate()
     let book = new Book({
         profile: {
             book_title: 'Buku Huddin',
             avatar_url: 'https://source.unsplash.com/random/buku panduan',
+            create_at: currentDate,
             author: {
                 nickname: 'Huddin',
                 tag: '2145'
@@ -108,26 +166,26 @@ router.get('/addBook', (req, res) => {
                     item_title: 'First list',
                     desc: 'ini adalah list pertamamu',
                     color: 'yellowgreen',
-                    deadline: '12/31/2022'
+                    deadline: currentDate
                 },
                 dones: [],
                 notes: [{
                     context: 'catatan tentang list berada disini',
                     by: 'developer',
-                    date: '12/30/2022',
+                    date: currentDate,
                     color: 'royalblue'
                 }],
                 images: [{
                     pic: 'https://source.unsplash.com/random/introduce',
                     desc: 'gambar disimpan disini',
-                    date: '12/30/2022',
+                    date: currentDate,
                     by: 'developer'
                 }],
                 chat: [{
                     nickname: 'Mimo',
                     msg: 'kamu bisa membahas list disini',
                     time: '22.50',
-                    date: '12/30/2022'
+                    date: currentDate
                 }]
             }]
         }],

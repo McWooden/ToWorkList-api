@@ -8,26 +8,6 @@ const upload = multer({storage: storage})
 import sharp from 'sharp'
 import { Book } from './schema.js'
 
-// app.post('/x6/image', upload.single('image'), async (req, res) => {
-//     const resizeImage = sharp(req.file.buffer).resize({
-//         height: 1920,
-//         width: 1080,
-//         fit: "contain"
-//     })
-//     const { data, error } = await supabase.storage.from('tugas')
-//     .upload(`${req.body.id}/${req.body.nickname}-${+new Date}`, resizeImage, {
-//         contentType: req.file.mimetype,
-//         cacheControl: '3600',
-//         upsert: true
-//     })
-//     await Task.findByIdAndUpdate(req.body.id, {
-//         $addToSet: {
-//             "images": data.path
-//         }
-//     })
-//     res.send({msg: data, error})
-// })
-
 router.post('/:bookId/:pageId/:listId', upload.single('image'), async (req, res) => {
     try {
         const resizeImage = sharp(req.file.buffer).resize({
