@@ -10,12 +10,6 @@ router.get('/', (req, res) => {
         res.send(books)
     })
 })
-
-router.get('/', (req, res) => {
-    Book.find({}, (err, books) => {
-        res.send(books)
-    })
-})
 router.get('/:bookId/get/users', (req, res) => {
     Book.findById(req.params.bookId).select('users').exec((err, pages) => {
         if(err) {
@@ -53,8 +47,8 @@ router.put('/:bookId/page', (req, res) => {
         },
         list: [{
             details: {
-                item_title: 'First list',
-                desc: 'ini adalah list pertamamu',
+                item_title: 'daftar pertama',
+                desc: 'ini adalah daftar pertamamu',
                 color: 'yellowgreen',
                 deadline: currentDate
             },
@@ -87,8 +81,8 @@ router.put('/:bookId/page', (req, res) => {
     Book.findOneAndUpdate(query, update, options)
     .then(result => {
         if (result) {
-            const page = result.pages.find(obj => obj._id.toString() === req.params.pageId)
-            res.json(page)
+            const pagesDetails = result.pages.map(p => ({details: p.details }))
+            res.json({pages: pagesDetails})
         } else {
             res.status(404).json({ success: false, error: 'Page or List not found' })
         }
