@@ -77,11 +77,10 @@ router.put('/:bookId/page', (req, res) => {
     const query = { '_id': req.params.bookId }
     const update = { $push: { 'pages': data } }
     const options = { new: true }
-// cyclic give us empety data
     Book.findOneAndUpdate(query, update, options)
     .then(result => {
         if (result) {
-            const pagesDetails = result.pages.map(p => ({details: p.details }))
+            const pagesDetails = result.pages.map(p => ({details: p.details, _id: p._id }))
             res.json({pages: pagesDetails})
         } else {
             res.status(404).json({ success: false, error: 'Page or List not found' })
