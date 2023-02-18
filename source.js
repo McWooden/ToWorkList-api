@@ -55,16 +55,21 @@ router.post('/addTodo/:pageId', (req, res) => {
             date: currDate
         }]
     }
-    Book.findOneAndUpdate({'pages': { $elemMatch: { _id: req.params.pageId } }}, { $push: { 'pages.0.list': newTodo }}, {new: true}).select('pages')
+    Book.findOneAndUpdate(
+        {'pages': { $elemMatch: { _id: req.params.pageId } }},
+        { $push: { 'pages.$[page].list': newTodo }},
+        { new: true, arrayFilters: [{ 'page._id': req.params.pageId }] })
+    .select('pages')
     .exec((err, doc) => {
         if (err) {
-            res.status(500).json({error: err.message})
+            res.status(500).json({ error: err.message })
         } else {
             const page = doc.pages.id(req.params.pageId)
             res.json(page)
         }
     })
 })
+
 
 router.delete('/addTodo/:pageId/:listId', (req, res) => {
     const query = {
