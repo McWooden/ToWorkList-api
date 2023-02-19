@@ -25,6 +25,8 @@ router.get('/page/:pageId', (req, res) => {
         }
     })
 })
+
+// addTodo
 router.post('/addTodo/:pageId', (req, res) => {
     const currTime = `${new Date().getHours().toString().padStart(2, '0')}.${new Date().getMinutes().toString().padStart(2, '0')}`
     const currDate = `${new Date().getMonth() + 1}/${new Date().getDate()}/${new Date().getFullYear()}`
@@ -69,8 +71,6 @@ router.post('/addTodo/:pageId', (req, res) => {
         }
     })
 })
-
-
 router.delete('/addTodo/:pageId/:listId', (req, res) => {
     const query = {
         'pages': { $elemMatch: { _id: req.params.pageId } }
@@ -135,7 +135,7 @@ router.put('/addTodo/:pageId/:listId', (req, res) => {
     })
 })
 
-
+// reverse moment
 router.get('/uncheck/:pageId/:listId/:nickname', (req, res) => {
     Book.findOneAndUpdate(
         { 'pages': {$elemMatch: { _id: req.params.pageId, 'list': {$elemMatch: { _id: req.params.listId }}}}}, 

@@ -37,7 +37,7 @@ router.get('/:bookId/get/pages/list', (req, res) => {
     })
 })
 // add page
-router.put('/:bookId/page', (req, res) => {
+router.post('/:bookId/page', (req, res) => {
     const currentDate = currDate()
     const data = {
         details: {
@@ -83,14 +83,52 @@ router.put('/:bookId/page', (req, res) => {
             const pagesDetails = result.pages.map(p => ({details: p.details, _id: p._id }))
             res.json({pages: pagesDetails})
         } else {
-            res.status(404).json({ success: false, error: 'Page or List not found' })
+            res.status(404).json({ success: false, error: 'book or page not found' })
         }
     }).catch(err => {
         console.log(err)
         res.status(404).json({ success: false, error: err })
     })
 })
-// add
+
+router.put('/:bookId/page/:pageId', (req, res) => {
+    const query = { '_id': req.params.bookId }
+    const update = { $set: { 'pages.$[page].details.page_title': req.body.page_title } }
+    const options = { 
+        new: true,
+        arrayFilters: [{ 'page._id': req.params.pageId }]
+    }
+    Book.findOneAndUpdate(query, update, options)
+    .then(result => {
+        if (result) {
+            const pagesDetails = result.pages.map(p => ({details: p.details, _id: p._id }))
+            res.json({pages: pagesDetails})
+        } else {
+            res.status(404).json({ success: false, error: 'book or page not found' })
+        }
+    }).catch(err => {
+        console.log(err)
+        res.status(404).json({ success: false, error: err })
+    })
+})
+router.delete('/:bookId/page/:pageId', (req, res) => {
+    const query = { '_id': req.params.bookId }
+    const update = { $pull: { 'pages': {_id: req.params.pageId} } }
+    const options = { new: true }
+    Book.findOneAndUpdate(query, update, options)
+    .then(result => {
+        if (result) {
+            const pagesDetails = result.pages.map(p => ({details: p.details, _id: p._id }))
+            res.json({pages: pagesDetails})
+        } else {
+            res.status(404).json({ success: false, error: 'book or page not found' })
+        }
+    }).catch(err => {
+        console.log(err)
+        res.status(404).json({ success: false, error: err })
+    })
+})
+// auto add
 router.get('/:bookId/add/page', async (req, res) => {
     try {
         const updatedDocument = await Book.findOneAndUpdate(
