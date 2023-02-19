@@ -8,6 +8,38 @@ const upload = multer({storage: storage})
 import sharp from 'sharp'
 import { Book } from './schema.js'
 
+router.post('/jadwal/:bookId/:pageId', upload.single('image'), async (req, res) => {
+    try {
+        const namaLama = req.body.jadwal_url
+        const namaBaru = `${req.params.bookId}/${req.params.pageId}/jadwal-${+new Date()}`
+        const resizeImage = sharp(req.file.buffer).resize({
+            height: 1920,
+            width: 1080,
+            fit: 'contain'
+        })
+        const { dataMove, errorMove } = await supabase.storage.from('book').move(namaLama, namaBaru)
+        const { data } = await supabase.storage.from('book').upload(
+            namaBaru,
+            resizeImage, {
+                contentType: req.file.mimetype,
+                cacheControl: '3600',
+                upsert: true
+            }
+        )
+        const query = { _id: req.params.bookId }
+        const update = { $set: { 'pages.$[page].details.jadwal_url': data.path } }
+        const options = {
+            new: true,
+            arrayFilters: [{ 'page._id': req.params.pageId }]
+        }
+        const result = await Book.findOneAndUpdate(query, update, options)
+        if (!result) {return res.status(404).json({ success: false, error: 'book or page not found' })}
+        const page = result.pages.find(obj => obj._id.toString() === req.params.pageId)
+        return res.json(page)
+    } catch (err) {
+        return res.status(404).json({ success: false, error: err })
+    }
+})
 router.post('/:bookId/:pageId/:listId', upload.single('image'), async (req, res) => {
     try {
         const resizeImage = sharp(req.file.buffer).resize({

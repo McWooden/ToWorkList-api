@@ -43,7 +43,7 @@ router.post('/:bookId/page', (req, res) => {
         details: {
             page_title: req.body.page_title,
             icon: req.body.icon,
-            jadwal_url: 'https://source.unsplash.com/random/Welcome-buku panduan',
+            jadwal_url: 'hello',
         },
         list: [{
             details: {
@@ -60,7 +60,7 @@ router.post('/:bookId/page', (req, res) => {
                 color: 'royalblue'
             }],
             images: [{
-                pic: 'https://source.unsplash.com/random/introduce',
+                pic: 'hello',
                 desc: 'gambar disimpan disini',
                 date: currentDate,
                 by: 'developer'
