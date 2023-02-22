@@ -3,11 +3,12 @@ const router = express.Router()
 import { Book } from './schema.js'
 import { currDate } from './utils.js'
 router.get('/', (req, res) => {
-    Book.find({}).select('profile').exec((err, books) => {
-        if(err) {
+    Book.find({}, (err, book) => {
+        if(!book) {
             return res.status(500).send(err)
         }
-        res.send(books)
+        const filteredData = book.map(data => ({profile: data.profile, _id: data._id}))
+        res.send(filteredData)
     })
 })
 router.get('/:bookId/get/users', (req, res) => {

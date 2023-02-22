@@ -4,6 +4,7 @@ export const Book = mongoose.model('books', {
         book_title: String,
         avatar_url: String,
         create_at: String,
+        desc: String,
         author: {
             nickname: String,
             tag: String
