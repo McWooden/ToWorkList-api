@@ -7,7 +7,7 @@ router.get('/', (req, res) => {
         if(!book) {
             return res.status(500).send(err)
         }
-        const filteredData = book.map(data => ({profile: data.profile, _id: data._id}))
+        const filteredData = book.map(data => ({profile: data.profile, _id: data._id, users_length: data.users.length}))
         res.send(filteredData)
     })
 })
@@ -129,114 +129,130 @@ router.delete('/:bookId/page/:pageId', (req, res) => {
         res.status(404).json({ success: false, error: err })
     })
 })
-// auto add
-router.get('/:bookId/add/page', async (req, res) => {
-    try {
-        const updatedDocument = await Book.findOneAndUpdate(
-            { _id: req.params.bookId },
-            { $push: { 'pages': {
-                details: {
-                    page_title: 'Page Test',
-                    icon: 'faCheck',
-                    jadwal_url: 'https://source.unsplash.com/random/test',
-                },
-                list: [{
-                    details: {
-                        item_title: 'First list',
-                        desc: 'ini adalah list pertamamu',
-                        color: 'yellowgreen',
-                        deadline: '12/31/2022'
-                    },
-                    dones: [],
-                    notes: [{
-                        context: 'catatan tentang list berada disini',
-                        by: 'developer',
-                        date: '12/30/2022',
-                        color: 'royalblue'
-                    }],
-                    images: [{
-                        pic: 'hello',
-                        desc: 'gambar disimpan disini',
-                        date: '12/30/2022',
-                        by: 'developer'
-                    }],
-                    chat: [{
-                        nickname: 'developer',
-                        msg: 'kamu bisa membahas list disini',
-                        time: '22.50',
-                        date: '12/30/2022'
-                    }]
-                }]
-            } } },
-            { new: true }
-        )
-        res.json(updatedDocument)
-    } catch (err) {
-        res.status(500).json({ message: err.message })
+router.get('/addRoles', (req, res) => {
+    const options = {new: true}
+    const update = {
+        $push: {'users': {
+            nickname: 'Huddin', 
+            tag: '2521', 
+            avatar: 'https://source.APIsh.com/random/Huddin', 
+            status: 'programming',
+            role: [],
+            joined_at: +new Date()
+        }}
     }
-})
-router.get('/addBook', (req, res) => {
-    const currentDate = currDate()
-    let book = new Book({
-        profile: {
-            book_title: 'Buku Huddin',
-            avatar_url: 'https://source.unsplash.com/random/buku panduan',
-            create_at: currentDate,
-            author: {
-                nickname: 'Huddin',
-                tag: '2145'
-            },
-        },
-        pages: [{
-            details: {
-                page_title: 'Tugas harian',
-                icon: 'faAddressBook',
-                jadwal_url: 'https://source.unsplash.com/random/Welcome-buku panduan',
-            },
-            list: [{
-                details: {
-                    item_title: 'First list',
-                    desc: 'ini adalah list pertamamu',
-                    color: 'yellowgreen',
-                    deadline: currentDate
-                },
-                dones: [],
-                notes: [{
-                    context: 'catatan tentang list berada disini',
-                    by: 'developer',
-                    date: currentDate,
-                    color: 'royalblue'
-                }],
-                images: [{
-                    pic: 'https://source.unsplash.com/random/introduce',
-                    desc: 'gambar disimpan disini',
-                    date: currentDate,
-                    by: 'developer'
-                }],
-                chat: [{
-                    nickname: 'Mimo',
-                    msg: 'kamu bisa membahas list disini',
-                    time: '22.50',
-                    date: currentDate
-                }]
-            }]
-        }],
-        users: [{
-            details: {
-                role: 'Admin',
-                role_color: 'goldenrod'
-            },
-            member: [{
-                nickname: 'Huddin', 
-                tag: '4235', 
-                avatar: 'https://source.unsplash.com/random/McWooden', 
-                status: 'learning'
-            }]
-        }],
+    Book.findOneAndUpdate({}, update, options, (err, book) => {
+        res.json(+new Date())
     })
-    book.save()
-    console.log(book)
-    res.send('buku baru dibuat')
 })
+// auto add
+// router.get('/:bookId/add/page', async (req, res) => {
+//     try {
+//         const updatedDocument = await Book.findOneAndUpdate(
+//             { _id: req.params.bookId },
+//             { $push: { 'pages': {
+//                 details: {
+//                     page_title: 'Page Test',
+//                     icon: 'faCheck',
+//                     jadwal_url: 'https://source.unsplash.com/random/test',
+//                 },
+//                 list: [{
+//                     details: {
+//                         item_title: 'First list',
+//                         desc: 'ini adalah list pertamamu',
+//                         color: 'yellowgreen',
+//                         deadline: '12/31/2022'
+//                     },
+//                     dones: [],
+//                     notes: [{
+//                         context: 'catatan tentang list berada disini',
+//                         by: 'developer',
+//                         date: '12/30/2022',
+//                         color: 'royalblue'
+//                     }],
+//                     images: [{
+//                         pic: 'hello',
+//                         desc: 'gambar disimpan disini',
+//                         date: '12/30/2022',
+//                         by: 'developer'
+//                     }],
+//                     chat: [{
+//                         nickname: 'developer',
+//                         msg: 'kamu bisa membahas list disini',
+//                         time: '22.50',
+//                         date: '12/30/2022'
+//                     }]
+//                 }]
+//             } } },
+//             { new: true }
+//         )
+//         res.json(updatedDocument)
+//     } catch (err) {
+//         res.status(500).json({ message: err.message })
+//     }
+// })
+// router.get('/addBook', (req, res) => {
+//     const currentDate = currDate()
+//     let book = new Book({
+//         profile: {
+//             book_title: 'Buku Huddin',
+//             avatar_url: 'https://source.unsplash.com/random/buku panduan',
+//             create_at: currentDate,
+//             author: {
+//                 nickname: 'Huddin',
+//                 tag: '2145'
+//             },
+//         },
+//         pages: [{
+//             details: {
+//                 page_title: 'Tugas harian',
+//                 icon: 'faAddressBook',
+//                 jadwal_url: 'https://source.unsplash.com/random/Welcome-buku panduan',
+//             },
+//             list: [{
+//                 details: {
+//                     item_title: 'First list',
+//                     desc: 'ini adalah list pertamamu',
+//                     color: 'yellowgreen',
+//                     deadline: currentDate
+//                 },
+//                 dones: [],
+//                 notes: [{
+//                     context: 'catatan tentang list berada disini',
+//                     by: 'developer',
+//                     date: currentDate,
+//                     color: 'royalblue'
+//                 }],
+//                 images: [{
+//                     pic: 'https://source.unsplash.com/random/introduce',
+//                     desc: 'gambar disimpan disini',
+//                     date: currentDate,
+//                     by: 'developer'
+//                 }],
+//                 chat: [{
+//                     nickname: 'Mimo',
+//                     msg: 'kamu bisa membahas list disini',
+//                     time: '22.50',
+//                     date: currentDate
+//                 }]
+//             }]
+//         }],
+//         users: [{
+//             details: {
+//                 role: 'Admin',
+//                 role_color: 'goldenrod'
+//             },
+//             member: [{
+//                 nickname: 'Huddin', 
+//                 tag: '4235', 
+//                 avatar: 'https://source.unsplash.com/random/McWooden', 
+//                 status: 'learning'
+//             }]
+//         }],
+//     })
+//     book.save()
+//     console.log(book)
+//     res.send('buku baru dibuat')
+// })
 
 export default router

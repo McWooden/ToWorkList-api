@@ -44,17 +44,17 @@ export const Book = mongoose.model('books', {
             }]
         }] 
     }],
+    roles: [{
+        name: String,
+        color: String,
+    }],
     users: [{
-        details: {
-            role: String,
-            role_color: String
-        },
-        member: [{
-            nickname: String, 
-            tag: String, 
-            avatar: String, 
-            status: String
-        }]
+        nickname: String, 
+        tag: String, 
+        avatar: String, 
+        status: String,
+        role: [String],
+        joined_at: String
     }]
 })
 export const User = mongoose.model('users', {
@@ -67,3 +67,6 @@ export const User = mongoose.model('users', {
     tag: String
 })
 
+const exam = {
+    
+}
