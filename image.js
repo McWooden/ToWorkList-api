@@ -40,6 +40,47 @@ router.post('/jadwal/:bookId/:pageId', upload.single('image'), async (req, res) 
         return res.status(404).json({ success: false, error: err })
     }
 })
+// pp guild
+router.delete('/:bookId/pp', async (req, res) => {
+    await supabase.storage.from('book').remove([req.query.avatar_url])
+    const query = req.params.bookId
+    const update = { $set: { 'profile.avatar_url': 'default' } }
+    const options = { 
+        new: true,
+    }
+    Book.findByIdAndUpdate(query, update, options, (err, book) => {
+        if (err) return res.send('buku tidak ditemukan :)')
+        res.json({profile: book.profile})
+    })
+})
+router.put('/:bookId/pp', upload.single('image'), async (req, res) => {
+    try {
+        const namaLama = req.body.avatar_url
+        const namaBaru = `${req.params.bookId}/avatar-${+new Date()}`
+        const resizeImage = sharp(req.file.buffer).resize({
+            height: 128,
+            width: 128,
+            fit: 'cover'
+        })
+        const { dataMove, errorMove } = await supabase.storage.from('book').move(namaLama, namaBaru)
+        const { data } = await supabase.storage.from('book').upload(
+            namaBaru,
+            resizeImage, {
+                contentType: req.file.mimetype,
+                cacheControl: '3600',
+                upsert: true
+            }
+        )
+        const query = { _id: req.params.bookId }
+        const update = { $set: { 'profile.avatar_url': data.path } }
+        const options = { new: true }
+        const result = await Book.findOneAndUpdate(query, update, options)
+        if (!result) {return res.status(404).json({ success: false, error: 'book' })}
+        return res.json({profile: result.profile})
+    } catch (err) {
+        return res.status(404).json({ success: false, error: err })
+    }
+})
 router.post('/:bookId/:pageId/:listId', upload.single('image'), async (req, res) => {
     try {
         const resizeImage = sharp(req.file.buffer).resize({
