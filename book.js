@@ -37,6 +37,27 @@ router.get('/:bookId/get/pages/list', (req, res) => {
         res.send(pages)
     })
 })
+// ganti judul dan deskripsi
+router.put('/:bookId/judul', (req, res) => {
+    const update = {$set: {'profile.book_title' : req.body.book_title }}
+    const options = { new: true }
+    Book.findByIdAndUpdate(req.params.bookId, update, options, (err, book) => {
+        if(err) {
+            return res.status(500).send(err)
+        }
+        res.json({profile: book.profile})
+    })
+})
+router.put('/:bookId/desc', (req, res) => {
+    const update = {$set: {'profile.desc' : req.body.desc }}
+    const options = { new: true }
+    Book.findByIdAndUpdate(req.params.bookId, update, options, (err, book) => {
+        if(err) {
+            return res.status(500).send(err)
+        }
+        res.json({profile: book.profile})
+    })
+})
 // add page
 router.post('/:bookId/page', (req, res) => {
     const currentDate = currDate()
