@@ -23,7 +23,7 @@ router.post('/addBook', upload.single('image'), async (req, res) => {
                 details: {
                     page_title: 'Halaman Pertama',
                     icon: 'faCheck',
-                    jadwal_url: 'https://source.unsplash.com/random/Welcome-buku panduan',
+                    jadwal_url: 'hello',
                 },
                 list: [{
                     details: {
@@ -40,7 +40,7 @@ router.post('/addBook', upload.single('image'), async (req, res) => {
                         color: 'royalblue'
                     }],
                     images: [{
-                        pic: 'https://source.unsplash.com/random/introduce',
+                        pic: 'hello',
                         desc: 'gambar disimpan disini',
                         date: currentDate,
                         by: dataClient.author.nickname
