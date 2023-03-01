@@ -11,8 +11,7 @@ router.post('/:pageId/:listId', (req, res) => {
             'pages.$[page].list.$[list].chat': {
                 nickname: req.body.nickname,
                 msg: req.body.msg,
-                time: `${new Date().getHours().toString().padStart(2, '0')}.${new Date().getMinutes().toString().padStart(2, '0')}`,
-                date: `${new Date().getMonth() + 1}/${new Date().getDate()}/${new Date().getFullYear()}`
+                date: +new Date()
             }
         }
     }
