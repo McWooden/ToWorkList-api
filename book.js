@@ -2,7 +2,6 @@ import express from 'express'
 const router = express.Router()
 import { Book } from './schema.js'
 import { currDate } from './utils.js'
-import multer from 'multer'
 import { createClient } from '@supabase/supabase-js'
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY)
 
