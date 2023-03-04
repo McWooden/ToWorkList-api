@@ -1,6 +1,9 @@
 import express from 'express'
 const router = express.Router()
 import { Book } from './schema.js'
+import { createClient } from '@supabase/supabase-js'
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY)
+
 router.get('/list/:pageId/:listId', (req, res) => {
     Book.findOne({ 'pages._id': req.params.pageId }, { 'pages.$': 1 })
     .then(result => {
@@ -28,8 +31,7 @@ router.get('/page/:pageId', (req, res) => {
 
 // addTodo
 router.post('/addTodo/:pageId', (req, res) => {
-    const currTime = `${new Date().getHours().toString().padStart(2, '0')}.${new Date().getMinutes().toString().padStart(2, '0')}`
-    const currDate = `${new Date().getMonth() + 1}/${new Date().getDate()}/${new Date().getFullYear()}`
+    const currDate = +new Date()
     const newTodo = {
         details: {
             item_title: req.body.item_title,
@@ -53,7 +55,6 @@ router.post('/addTodo/:pageId', (req, res) => {
         chat: [{
             nickname: 'mimo',
             msg: 'chat disini!',
-            time: currTime,
             date: currDate
         }]
     }
@@ -71,7 +72,7 @@ router.post('/addTodo/:pageId', (req, res) => {
         }
     })
 })
-router.delete('/addTodo/:pageId/:listId', (req, res) => {
+router.delete('/addTodo/:pageId/:listId', async (req, res) => {
     const query = {
         'pages': { $elemMatch: { _id: req.params.pageId } }
     }
@@ -83,13 +84,21 @@ router.delete('/addTodo/:pageId/:listId', (req, res) => {
         arrayFilters: [{ 'page._id': req.params.pageId }]
     }
     Book.findOneAndUpdate(query, update, options)
-    .then(result => {
+    .then(async result => {
         if (result) {
             const page = result.pages.id(req.params.pageId)
             if (req.query.returnPage) {
                 res.json(page)
             } else {
                 const list = page.list.id(req.params.listId)
+                
+                const filteredArray = list.images.reduce((acc, image) => {
+                    acc.push(image.pic)
+                },[]).filter((value) => {
+                    return value !== 'default' && value !== 'hello'
+                })
+                await supabase.storage.from('book').remove(filteredArray)
+
                 res.json(list)
             }
         } else {

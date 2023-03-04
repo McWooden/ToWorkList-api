@@ -8,88 +8,6 @@ const upload = multer({storage: storage})
 import sharp from 'sharp'
 import { Book } from './schema.js'
 
-router.post('/addBook', upload.single('image'), async (req, res) => {
-    try {
-        const dataClient = JSON.parse(req.body.data)
-        const currentDate = +new Date()
-        let book = new Book({
-            profile: {
-                book_title: dataClient.book_title,
-                avatar_url: '',
-                create_at: currentDate,
-                author: dataClient.author,
-            },
-            pages: [{
-                details: {
-                    page_title: 'Halaman Pertama',
-                    icon: 'faCheck',
-                    jadwal_url: 'hello',
-                },
-                list: [{
-                    details: {
-                        item_title: 'Daftar pertama',
-                        desc: 'ini adalah daftar pertamamu',
-                        color: 'yellowgreen',
-                        deadline: currentDate
-                    },
-                    dones: [],
-                    notes: [{
-                        context: 'catatan tentang list berada disini',
-                        by: dataClient.author.nickname,
-                        date: currentDate,
-                        color: 'royalblue'
-                    }],
-                    images: [{
-                        pic: 'hello',
-                        desc: 'gambar disimpan disini',
-                        date: currentDate,
-                        by: dataClient.author.nickname
-                    }],
-                    chat: [{
-                        nickname: 'Mimo',
-                        msg: 'kamu bisa membahas list disini',
-                        date: currentDate
-                    }]
-                }]
-            }],
-            roles: [{
-                name: 'Admin',
-                color: 'greenyellow',
-            }],
-            users: [{
-                nickname: dataClient.author.nickname, 
-                tag: dataClient.author.tag,
-                role: [],
-                avatar: dataClient.author_avatar, 
-                status: 'Hello'
-            }]
-        })
-        const resizeImage = sharp(req.file.buffer).resize({
-            height: 128,
-            width: 128,
-            fit: 'cover'
-        })
-        const { data } = await supabase.storage.from('book').upload(
-            `${book._id}/avatar-${+new Date()}`,
-            resizeImage, {
-                contentType: req.file.mimetype,
-                cacheControl: '3600',
-                upsert: true
-            }
-        )
-        const avatar_path = data.path
-        book.profile.avatar_url = avatar_path
-        book.save((err, book) => {
-            if (err) {
-                console.error(err)
-            } else {
-                res.send(book)
-            }
-        })
-    } catch (error) {
-        console.log(error)
-    }
-})
 router.post('/jadwal/:bookId/:pageId', upload.single('image'), async (req, res) => {
     try {
         const namaLama = req.body.jadwal_url
@@ -192,7 +110,7 @@ router.post('/:bookId/:pageId/:listId', upload.single('image'), async (req, res)
             'pages.$[page].list.$[list].images': {
                 pic: data.path,
                 desc: req.body.desc,
-                date: `${new Date().getMonth() + 1}/${new Date().getDate()}/${new Date().getFullYear()}`,
+                date: +new Date(),
                 by: req.body.nickname
             }
         }

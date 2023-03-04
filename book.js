@@ -2,6 +2,98 @@ import express from 'express'
 const router = express.Router()
 import { Book } from './schema.js'
 import { currDate } from './utils.js'
+import multer from 'multer'
+import { createClient } from '@supabase/supabase-js'
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY)
+const storage = multer.memoryStorage()
+const upload = multer({storage: storage})
+import sharp from 'sharp'
+
+
+
+router.post('/addBook', upload.single('image'), async (req, res) => {
+    try {
+        const dataClient = JSON.parse(req.body.data)
+        const currentDate = +new Date()
+        let book = new Book({
+            profile: {
+                book_title: dataClient.book_title,
+                avatar_url: '',
+                created_at: currentDate,
+                author: dataClient.author,
+            },
+            pages: [{
+                details: {
+                    page_title: 'Halaman Pertama',
+                    icon: 'faCheck',
+                    jadwal_url: 'hello',
+                },
+                list: [{
+                    details: {
+                        item_title: 'Daftar pertama',
+                        desc: 'ini adalah daftar pertamamu',
+                        color: 'yellowgreen',
+                        deadline: currentDate
+                    },
+                    dones: [],
+                    notes: [{
+                        context: 'catatan tentang list berada disini',
+                        by: dataClient.author.nickname,
+                        date: currentDate,
+                        color: 'royalblue'
+                    }],
+                    images: [{
+                        pic: 'hello',
+                        desc: 'gambar disimpan disini',
+                        date: currentDate,
+                        by: dataClient.author.nickname
+                    }],
+                    chat: [{
+                        nickname: 'Mimo',
+                        msg: 'kamu bisa membahas list disini',
+                        date: currentDate
+                    }]
+                }]
+            }],
+            roles: [{
+                name: 'Admin',
+                color: 'greenyellow',
+            }],
+            users: [{
+                nickname: dataClient.author.nickname, 
+                tag: dataClient.author.tag,
+                role: [],
+                avatar: dataClient.author_avatar, 
+                status: 'Hello'
+            }]
+        })
+        const resizeImage = sharp(req.file.buffer).resize({
+            height: 128,
+            width: 128,
+            fit: 'cover'
+        })
+        const { data } = await supabase.storage.from('book').upload(
+            `${book._id}/avatar-${+new Date()}`,
+            resizeImage, {
+                contentType: req.file.mimetype,
+                cacheControl: '3600',
+                upsert: true
+            }
+        )
+        const avatar_path = data.path
+        book.profile.avatar_url = avatar_path
+        book.save((err, book) => {
+            if (err) {
+                console.error(err)
+            } else {
+                res.send(book)
+            }
+        })
+    } catch (error) {
+        console.log(error)
+    }
+})
+
 router.get('/', (req, res) => {
     Book.find({}, (err, book) => {
         if(!book) {
@@ -12,11 +104,12 @@ router.get('/', (req, res) => {
     })
 })
 router.get('/:bookId/get/users', (req, res) => {
-    Book.findById(req.params.bookId).select('users').exec((err, pages) => {
-        if(err) {
+    Book.findById(req.params.bookId, (err, book) => {
+        if(!book) {
             return res.status(500).send(err)
         }
-        res.json(pages)
+        const filteredData = book.map(data => ({users: data.users, _id: data._id, roles: data.roles}))
+        res.json(filteredData)
     })
 })
 // get rooms
@@ -138,9 +231,19 @@ router.delete('/:bookId/page/:pageId', (req, res) => {
     const update = { $pull: { 'pages': {_id: req.params.pageId} } }
     const options = { new: true }
     Book.findOneAndUpdate(query, update, options)
-    .then(result => {
+    .then(async result => {
         if (result) {
             const pagesDetails = result.pages.map(p => ({details: p.details, _id: p._id }))
+            const page = result.pages.id(req.params.pageId)
+            const picArray = page.list.reduce((accumulator, item) => {
+                item.images.forEach((image) => {
+                    accumulator.push(image.pic)
+                })
+                return accumulator
+            }, []).filter((value) => {
+                return value !== 'default' && value !== 'hello'
+            })
+            await supabase.storage.from('book').remove(picArray)
             res.json({pages: pagesDetails})
         } else {
             res.status(404).json({ success: false, error: 'book or page not found' })
@@ -165,6 +268,33 @@ router.get('/addRoles', (req, res) => {
     Book.findOneAndUpdate({}, update, options, (err, book) => {
         res.json(+new Date())
     })
+})
+
+// delete book
+router.delete('/:bookId', async (req, res) => {
+    try {
+        Book.findOne({_id: req.params.bookId, 'profile.author': req.body.profile.author}, async (err, book) => {
+            if (book.profile.author.nickname !== req.body.userClientProfile.nickname || book.profile.author.tag !== req.body.userClientProfile.tag) return res.send('anda bukan pemilik buku ini')
+            const picArray = book.pages.reduce((accumulator, page) => {
+                page.list.forEach((item) => {
+                        item.images.forEach((image) => {
+                        accumulator.push(image.pic)
+                        })
+                    })
+                    return accumulator
+            }, [])
+            const jadwalUrlArray = book.pages.map((page) => page.details.jadwal_url)
+            const avatarUrlArray = [book.profile.avatar_url]
+            const filteredArray = [...picArray, ...jadwalUrlArray, ...avatarUrlArray].filter((value) => {
+                return value !== 'default' && value !== 'hello'
+            })
+            await supabase.storage.from('book').remove(filteredArray)
+            await Book.deleteOne({_id: book._id})
+            res.send('book has been delete, say good bye :)')
+        })
+    } catch (error) {
+        res.status(404).send(error)
+    }
 })
 // auto add
 // router.get('/:bookId/add/page', async (req, res) => {

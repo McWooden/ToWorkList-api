@@ -11,7 +11,7 @@ router.post('/:pageId/:listId', (req, res) => {
             'pages.$[page].list.$[list].notes': {
                 context: req.body.context,
                 by: req.body.by,
-                date: `${new Date().getMonth() + 1}/${new Date().getDate()}/${new Date().getFullYear()}`,
+                date: +new Date(),
                 color: req.body.color
             }
         }
@@ -42,7 +42,7 @@ router.put('/:pageId/:listId/:noteId', (req, res) => {
     const update = {
         $set: {
             'pages.$[page].list.$[list].notes.$[note].context': req.body.context,
-            'pages.$[page].list.$[list].notes.$[note].date': `${new Date().getMonth() + 1}/${new Date().getDate()}/${new Date().getFullYear()}`,
+            'pages.$[page].list.$[list].notes.$[note].date': +new Date(),
         }
     }
     const options = { 
