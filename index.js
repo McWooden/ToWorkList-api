@@ -8,12 +8,16 @@ import cookieParser from 'cookie-parser'
 app.use(cookieParser())
 const port = process.env.PORT || 3001
 
-
-
 import './mongoose.js'
 import { connectDB } from './mongoose.js'
 import cors from 'cors'
 app.use(cors())
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', 'https://mcwooden.netlify.app, http://localhost:3000')
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    next()
+})
 import book from './book.js'
 import user from './user.js'
 import source from './source.js'
