@@ -69,13 +69,14 @@ router.post('/addBook', upload.single('image'), async (req, res) => {
             width: 128,
             fit: 'cover'
         })
-        const { data } = await supabase.storage.from('book').upload(
+        const { data, error} = await supabase.storage.from('book').upload(
             `${book._id}/avatar-${+new Date()}`,
             resizeImage, {
                 contentType: req.file.mimetype,
                 cacheControl: '3600',
-                upsert: true
-            }
+                upsert: true,
+            },
+            {duplex:'half'}
         )
         const avatar_path = data.path
         book.profile.avatar_url = avatar_path
@@ -88,6 +89,7 @@ router.post('/addBook', upload.single('image'), async (req, res) => {
         })
     } catch (error) {
         console.log(error)
+        res.send('error idk')
     }
 })
 
