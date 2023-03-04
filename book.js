@@ -189,7 +189,7 @@ router.get('/addRoles', (req, res) => {
 router.delete('/:bookId', async (req, res) => {
     try {
         Book.findOne({_id: req.params.bookId, 'profile.author': req.body.profile.author}, async (err, book) => {
-            if (book.profile.author.nickname !== req.body.userClientProfile.nickname || book.profile.author.tag !== req.body.userClientProfile.tag) return res.send('anda bukan pemilik buku ini')
+            if (book.profile.author.nickname !== req.body.userClientProfile.nickname || book.profile.author.tag !== req.body.userClientProfile.tag) return res.status(500).send('Bukan milik anda!')
             const picArray = book.pages.reduce((accumulator, page) => {
                 page.list.forEach((item) => {
                         item.images.forEach((image) => {
@@ -199,8 +199,7 @@ router.delete('/:bookId', async (req, res) => {
                     return accumulator
             }, [])
             const jadwalUrlArray = book.pages.map((page) => page.details.jadwal_url)
-            const avatarUrlArray = [book.profile.avatar_url]
-            const filteredArray = [...picArray, ...jadwalUrlArray, ...avatarUrlArray].filter((value) => {
+            const filteredArray = [...picArray, ...jadwalUrlArray, book.profile.avatar_url].filter((value) => {
                 return value !== 'default' && value !== 'hello'
             })
             await supabase.storage.from('book').remove(filteredArray)
