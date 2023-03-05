@@ -1,8 +1,11 @@
 import express from 'express'
 import multer from 'multer'
 import { createClient } from '@supabase/supabase-js'
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
-    duplex: 'half'
+const supabase = createClient(process.env.SUPABASE_URL, {
+    headers: {
+        apiKey: process.env.SUPABASE_ANON_KEY,
+    },
+    duplex: true,
 })
 const router = express.Router()
 const storage = multer.memoryStorage()
