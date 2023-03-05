@@ -1,11 +1,8 @@
 import express from 'express'
 import multer from 'multer'
 import { createClient } from '@supabase/supabase-js'
-const supabase = createClient(process.env.SUPABASE_URL, {
-    headers: {
-        apiKey: process.env.SUPABASE_ANON_KEY,
-    },
-    duplex: true,
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+    duplex: 'half'
 })
 const router = express.Router()
 const storage = multer.memoryStorage()
@@ -81,7 +78,6 @@ router.post('/addBook', upload.single('image'), async (req, res) => {
                 cacheControl: '3600',
                 upsert: true,
             },
-            {duplex:'half'}
         )
         const avatar_path = data.path
         book.profile.avatar_url = avatar_path
