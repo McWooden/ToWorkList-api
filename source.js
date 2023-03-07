@@ -31,7 +31,7 @@ router.get('/page/:pageId', (req, res) => {
 
 // addTodo
 router.post('/addTodo/:pageId', (req, res) => {
-    const currDate = +new Date()
+    const currDate = req.body.deadline
     const newTodo = {
         details: {
             item_title: req.body.item_title,
