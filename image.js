@@ -66,21 +66,26 @@ router.post('/addBook', upload.single('image'), async (req, res) => {
                 status: 'Hello'
             }]
         })
-        const resizeImage = sharp(req.file.buffer).resize({
-            height: 128,
+        try {
+            const resizeImage = sharp(req.file.buffer).resize({
+                height: 128,
             width: 128,
             fit: 'cover'
-        })
-        const { data, error} = await supabase.storage.from('book').upload(
-            `${book._id}/avatar-${+new Date()}`,
-            resizeImage, {
-                contentType: req.file.mimetype,
-                cacheControl: '3600',
-                upsert: true,
-            },
-        )
-        const avatar_path = data.path
-        book.profile.avatar_url = avatar_path
+            })
+            const { data, error} = await supabase.storage.from('book').upload(
+                `${book._id}/avatar-${+new Date()}`,
+                resizeImage, {
+                    contentType: req.file.mimetype,
+                    cacheControl: '3600',
+                    upsert: true,
+                },
+            )
+            const avatar_path = data.path
+            book.profile.avatar_url = avatar_path
+        } catch (error) {
+            book.profile.avatar_url = 'default'
+            console.log(error)
+        }
         book.save((err, book) => {
             if (err) {
                 console.error(err)
@@ -90,7 +95,7 @@ router.post('/addBook', upload.single('image'), async (req, res) => {
         })
     } catch (error) {
         console.log(error)
-        res.send('error idk')
+        res.status(500).send('error idk')
     }
 })
 
