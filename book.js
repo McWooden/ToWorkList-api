@@ -14,6 +14,16 @@ router.get('/', (req, res) => {
         res.send(filteredData)
     })
 })
+router.get('/:userId', (req, res) => {
+    console.log(req.params.userId)
+    Book.find({'users._id':  req.params.userId}, (err, book) => {
+        if(!book) {
+            return res.status(500).send(err)
+        }
+        const filteredData = book.map(data => ({profile: data.profile, _id: data._id, users_length: data.users.length}))
+        res.send(filteredData)
+    })
+})
 router.get('/:bookId/get/users', (req, res) => {
     Book.findById(req.params.bookId, (err, book) => {
         if(err) {
@@ -23,7 +33,44 @@ router.get('/:bookId/get/users', (req, res) => {
             _id: book._id,
             roles: book.roles,
             users: book.users
-        };
+        }
+        res.json(filteredData)
+    })
+})
+router.get('/join/:bookId', (req, res) => {
+    Book.findById(req.params.bookId, (err, book) => {
+        if(err) {
+            return res.status(500).send(err)
+        }
+        const filteredData = {
+            _id: book._id,
+            profile: book.profile,
+            users_length: book.users.length
+        }
+        res.json(filteredData)
+    })
+})
+router.post('/join/:bookId', (req, res) => {
+    const query = req.params.bookId
+    const newUser = req.body
+    const update = { $addToSet: { 'users': {
+        _id: newUser._id,
+        nickname: newUser.nickname,
+        tag: newUser.tag, 
+        avatar: newUser.avatar, 
+        status: '-',
+        role: [],
+        joined_at: +new Date()
+    }}}
+    const options = { 
+        new: true,
+    }
+    Book.findByIdAndUpdate(query, update, options, (err, book) => {
+        if (err) return res.send('buku tidak ditemukan :)')
+        const filteredData = {
+            profile: book.profile,
+            _id: book._id
+        }
         res.json(filteredData)
     })
 })

@@ -90,7 +90,11 @@ router.post('/addBook', upload.single('image'), async (req, res) => {
             if (err) {
                 console.error(err)
             } else {
-                res.send(book)
+                const filteredData = {
+                    profile: book.profile,
+                    _id: book._id
+                }
+                res.json(filteredData)
             }
         })
     } catch (error) {
