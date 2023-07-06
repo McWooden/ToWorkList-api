@@ -143,7 +143,7 @@ router.post('/:bookId/page', (req, res) => {
                 by: 'developer'
             }],
             chat: [{
-                nickname: 'Mimo',
+                nickname: 'Tutorial',
                 msg: 'kamu bisa membahas list disini',
                 time: '22.50',
                 date: currentDate
@@ -342,7 +342,7 @@ router.delete('/:bookId', async (req, res) => {
 //                     by: 'developer'
 //                 }],
 //                 chat: [{
-//                     nickname: 'Mimo',
+//                     nickname: 'Tutorial',
 //                     msg: 'kamu bisa membahas list disini',
 //                     time: '22.50',
 //                     date: currentDate

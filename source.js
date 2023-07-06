@@ -42,18 +42,18 @@ router.post('/addTodo/:pageId', (req, res) => {
         dones: [],
         notes: [{
             context: 'catatan',
-            by: 'mimo',
+            by: 'Tutorial',
             date: currDate,
             color: 'royalblue'
         }],
         images: [{
-            pic: 'hello',
+            pic: 'Tutorial',
             desc: 'gambar disimpan disini',
             date: currDate,
-            by: 'mimo'
+            by: 'Tutorial'
         }],
         chat: [{
-            nickname: 'mimo',
+            nickname: 'Tutorial',
             msg: 'chat disini!',
             date: currDate
         }]

@@ -48,7 +48,7 @@ router.post('/addBook', upload.single('image'), async (req, res) => {
                         by: dataClient.author.nickname
                     }],
                     chat: [{
-                        nickname: 'Mimo',
+                        nickname: 'Tutorial',
                         msg: 'kamu bisa membahas list disini',
                         date: currentDate
                     }]

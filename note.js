@@ -9,7 +9,7 @@ router.post('/:pageId/:listId', (req, res) => {
     const update = {
         $push: {
             'pages.$[page].list.$[list].notes': {
-                context: req.body.context,
+                context: req.body.context || req.body.desc,
                 by: req.body.by,
                 date: +new Date(),
                 color: req.body.color
