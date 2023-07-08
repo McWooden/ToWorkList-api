@@ -62,8 +62,10 @@ router.post('/addBook', upload.single('image'), async (req, res) => {
                 nickname: dataClient.author.nickname, 
                 tag: dataClient.author.tag,
                 role: [],
-                avatar: dataClient.author_avatar, 
-                status: 'Hello'
+                avatar: dataClient.author_avatar,
+                status: '-',
+                _id: dataClient.author._id,
+                joined_at: +new Date()
             }]
         })
         try {

@@ -50,7 +50,7 @@ export const Book = mongoose.model('books', {
         color: String,
     }],
     users: [{
-        nickname: String, 
+        nickname: String,
         tag: String, 
         avatar: String, 
         status: String,
@@ -68,5 +68,3 @@ export const User = mongoose.model('users', {
     created_at: String,
     tag: String
 })
-
-const exam = {}

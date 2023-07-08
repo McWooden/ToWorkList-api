@@ -15,12 +15,11 @@ router.get('/', (req, res) => {
     })
 })
 router.get('/:userId', (req, res) => {
-    console.log(req.params.userId)
     Book.find({'users._id':  req.params.userId}, (err, book) => {
         if(!book) {
             return res.status(500).send(err)
         }
-        const filteredData = book.map(data => ({profile: data.profile, _id: data._id, users_length: data.users.length}))
+        const filteredData = book.map(data => ({profile: data.profile, _id: data._id}))
         res.send(filteredData)
     })
 })
