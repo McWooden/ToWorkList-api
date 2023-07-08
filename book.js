@@ -234,23 +234,28 @@ router.get('/addRoles', (req, res) => {
 // delete book
 router.delete('/:bookId', async (req, res) => {
     try {
-        Book.findOne({_id: req.params.bookId, 'profile.author': req.body.profile.author}, async (err, book) => {
-            if (book.profile.author.nickname !== req.body.userClientProfile.nickname || book.profile.author.tag !== req.body.userClientProfile.tag) return res.status(500).send('Bukan milik anda!')
-            const picArray = book.pages.reduce((accumulator, page) => {
-                page.list.forEach((item) => {
-                        item.images.forEach((image) => {
-                        accumulator.push(image.pic)
+        Book.findOne({_id: req.params.bookId, 'profile.author.nickname': req.body.profile.author.nickname, 'profile.author.tag': req.body.profile.author.tag}, async (err, book) => {
+            try {
+                if (book.profile.author.nickname !== req.body.userClientProfile.nickname || book.profile.author.tag !== req.body.userClientProfile.tag) return res.status(500).send('Bukan milik anda!')
+                const picArray = book.pages.reduce((accumulator, page) => {
+                    page.list.forEach((item) => {
+                            item.images.forEach((image) => {
+                            accumulator.push(image.pic)
+                            })
                         })
-                    })
-                    return accumulator
-            }, [])
-            const jadwalUrlArray = book.pages.map((page) => page.details.jadwal_url)
-            const filteredArray = [...picArray, ...jadwalUrlArray, book.profile.avatar_url].filter((value) => {
-                return value !== 'default' && value !== 'hello'
-            })
-            await supabase.storage.from('book').remove(filteredArray)
-            await Book.deleteOne({_id: book._id})
-            res.send('book has been delete, say good bye :)')
+                        return accumulator
+                }, [])
+                const jadwalUrlArray = book.pages.map((page) => page.details.jadwal_url)
+                const filteredArray = [...picArray, ...jadwalUrlArray, book.profile.avatar_url].filter((value) => {
+                    return value !== 'default' && value !== 'hello'
+                })
+                await supabase.storage.from('book').remove(filteredArray)
+                await Book.deleteOne({_id: book._id})
+                res.send('book has been delete, say good bye :)')
+            } catch (error) {
+                // console.log('Your body request:', req.body)
+                console.log('This the findOne', req.params.bookId, req.body.profile)
+            }
         })
     } catch (error) {
         res.status(404).send(error)
