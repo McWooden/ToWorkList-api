@@ -99,7 +99,6 @@ router.post('/pemulihan', (req, res) => {
 
 router.put('/', async (req, res) => {
     const { nickname, panggilan, tempat, posisi, kota, negara, bio, _id } = req.body
-    console.log(req.body)
     try {
       const updatedUser = await User.findByIdAndUpdate(_id, { nickname, panggilan, tempat, posisi, kota, negara, bio }, { new: true })
   
