@@ -97,6 +97,24 @@ router.post('/pemulihan', (req, res) => {
     )
 })
 
+router.put('/', async (req, res) => {
+    const { nickname, panggilan, tempat, posisi, kota, negara, bio, _id } = req.body
+    console.log(req.body)
+    try {
+      const updatedUser = await User.findByIdAndUpdate(_id, { nickname, panggilan, tempat, posisi, kota, negara, bio }, { new: true })
+  
+      if (!updatedUser) {
+        return res.status(404).json({ error: 'User not found' })
+      }
+      let {password, ...rest} = updatedUser
+      return res.json(rest)
+    } catch (error) {
+      console.error(error)
+      return res.status(500).json({ error: 'Server error' })
+    }
+  });
+  
+
 router.post('/', async (req, res) => {
     const randomNumber = generate4DigitNumber()
     let data = new User({
@@ -104,8 +122,14 @@ router.post('/', async (req, res) => {
         nickname: req.body.nickname,
         avatar: req.body.avatar,
         email: req.body.email,
-        created_at: new Date().toLocaleDateString(),
         password: req.body.password,
+        created_at: new Date().toLocaleDateString(),
+        panggilan: '',
+        tempat: '',
+        posisi: '',
+        kota: '',
+        negara: '',
+        bio: '',
         tag: randomNumber
     })
     const {_doc: user} = data

@@ -66,5 +66,11 @@ export const User = mongoose.model('users', {
     email: String,
     password: String,
     created_at: String,
-    tag: String
+    panggilan: String,
+    tempat: String,
+    posisi: String,
+    kota: String,
+    negara: String,
+    tag: String,
+    bio: String
 })

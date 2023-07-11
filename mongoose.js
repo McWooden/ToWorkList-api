@@ -16,3 +16,5 @@ export const connectDB = async () => {
         process.exit(1)
     }
 }
+import { createClient } from '@supabase/supabase-js'
+export const supabase = (process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {auth: {persistSession: false}})
