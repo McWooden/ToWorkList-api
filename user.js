@@ -111,7 +111,38 @@ router.put('/', async (req, res) => {
       console.error(error)
       return res.status(500).json({ error: 'Server error' })
     }
-  });
+})
+router.put('/label', async (req, res) => {
+    const { label, _id } = req.body
+    console.log(label, _id)
+    try {
+      const updatedUser = await User.findByIdAndUpdate(_id, { label }, { new: true })
+  
+      if (!updatedUser) {
+        return res.status(404).json({ error: 'User not found' })
+      }
+      let {password, ...rest} = updatedUser
+      return res.json(rest)
+    } catch (error) {
+      console.error(error)
+      return res.status(500).json({ error: 'Server error' })
+    }
+})
+router.put('/bio', async (req, res) => {
+    const { bio, _id } = req.body
+    try {
+      const updatedUser = await User.findByIdAndUpdate(_id, { bio }, { new: true })
+  
+      if (!updatedUser) {
+        return res.status(404).json({ error: 'User not found' })
+      }
+      let {password, ...rest} = updatedUser
+      return res.json(rest)
+    } catch (error) {
+      console.error(error)
+      return res.status(500).json({ error: 'Server error' })
+    }
+})
   
 
 router.post('/', async (req, res) => {
@@ -129,6 +160,7 @@ router.post('/', async (req, res) => {
         kota: '',
         negara: '',
         bio: '',
+        label: ['Pengguna baru'],
         tag: randomNumber
     })
     const {_doc: user} = data
