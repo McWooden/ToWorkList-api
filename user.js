@@ -8,7 +8,6 @@ router.get('/avaible/:checkNickname', async (req, res) => {
     try {
         const user = await User.findOne({ nickname: new RegExp('^' + req.params.checkNickname + '$', 'i')})
         if (user) {
-            console.log(user)
             res.status(404).send(`${req.params.checkNickname} sudah dipakai`)
         } else {
             res.send(`${req.params.checkNickname} tersedia`)
@@ -22,7 +21,6 @@ router.get('/emailExist/:checkEmail', async (req, res) => {
     try {
         const email = await User.findOne({ email: req.params.checkEmail})
         if (email) {
-            console.log(email)
             res.status(404).send(`Email sudah pernah dipakai`)
         } else {
             res.send(`Email tersedia`)
@@ -39,7 +37,6 @@ router.put('/login/google', async (req, res) => {
             const {_doc: user} = await User.findOne({ email: credential.email})
             if (user) {
                 const {__v, password, ...account} = user
-                console.log(account)
                 res.send(account)
             } else {
                 res.send(`Akun anda tidak ditemukan`)
@@ -114,7 +111,6 @@ router.put('/', async (req, res) => {
 })
 router.put('/label', async (req, res) => {
     const { label, _id } = req.body
-    console.log(label, _id)
     try {
       const updatedUser = await User.findByIdAndUpdate(_id, { label }, { new: true })
   
