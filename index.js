@@ -24,6 +24,7 @@ import source from './source.js'
 import chat from './chat.js'
 import notes from './note.js'
 import image from './image.js'
+import search from './search.js'
 
 // import { createServer } from "http";
 // import { Server } from "socket.io"
@@ -63,6 +64,7 @@ app.use('/source', source)
 app.use('/notes', notes)
 app.use('/chat', chat)
 app.use('/image', image)
+app.use('/search', search)
 
 
 
