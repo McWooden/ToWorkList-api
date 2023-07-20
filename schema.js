@@ -73,5 +73,6 @@ export const User = mongoose.model('users', {
     negara: String,
     tag: String,
     bio: String,
-    label: [String]
+    label: [String],
+    pengikut: [mongoose.Schema.Types.ObjectId]
 })

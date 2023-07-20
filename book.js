@@ -35,6 +35,7 @@ router.get('/:bookId/get/users', (req, res) => {
         res.json(filteredData)
     })
 })
+
 router.get('/join/:bookId', (req, res) => {
     Book.findById(req.params.bookId, (err, book) => {
         if(err) {
@@ -48,6 +49,7 @@ router.get('/join/:bookId', (req, res) => {
         res.json(filteredData)
     })
 })
+
 router.post('/join/:bookId', (req, res) => {
     const query = req.params.bookId
     const newUser = req.body

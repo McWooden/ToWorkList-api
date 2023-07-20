@@ -157,6 +157,7 @@ router.post('/', async (req, res) => {
         negara: '',
         bio: '',
         label: ['Pengguna baru'],
+        pengikut: [],
         tag: randomNumber
     })
     const {_doc: user} = data
@@ -164,4 +165,24 @@ router.post('/', async (req, res) => {
     data.save()
     res.send({rest, message: 'Akun berhasil dibuat'})
 })
+
+router.get('/summary/:userId', (req, res) => {
+    User.findById(req.params.userId, (err, user) => {
+        if(err) {
+            return res.status(500).send(err)
+        }
+        const filteredData = {
+            _id: user._id,
+            nickname: user.nickname,
+            tag: user.tag,
+            avatar: user.avatar,
+            label: user.label,
+            bio: user.bio,
+            panggilan: user.panggilan,
+            pengikutLength: user.pengikut.length,
+        }
+        res.json(filteredData)
+    })
+})
+
 export default router
