@@ -60,7 +60,7 @@ router.put('/:pageId/:listId/:chatId', (req, res) => {
         if (result) {
             const page = result.pages.find(obj => obj._id.toString() === req.params.pageId)
             const list = page.list.find(obj => obj._id.toString() === req.params.listId)
-            res.json({ success: true, data: list })
+            res.json({ success: true, data: list.chat })
         } else {
             res.status(404).json({ success: false, error: 'Page or List not found' })
         }
