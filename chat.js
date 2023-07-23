@@ -34,7 +34,7 @@ router.post('/:pageId/:listId', (req, res) => {
         .then(savedBook => {
             const page = savedBook.pages.find(obj => obj._id.toString() === req.params.pageId)
             const list = page.list.find(obj => obj._id.toString() === req.params.listId)
-            res.json({ success: true, data: list, new: newItem })
+            res.json({ success: true, chat: list.chat })
         })
         .catch(err => {
             console.log(err)
