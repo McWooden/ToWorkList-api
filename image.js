@@ -1,10 +1,6 @@
 import express from 'express'
 import multer from 'multer'
-import { createClient } from '@supabase/supabase-js'
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
-    duplex: 'half',
-    auth: {persistSession: false}
-})
+import { supabaseAndDuplexTrue as supabase } from './mongoose.js'
 const router = express.Router()
 const storage = multer.memoryStorage()
 const upload = multer({storage: storage})
@@ -81,6 +77,7 @@ router.post('/addBook', upload.single('image'), async (req, res) => {
                     contentType: req.file.mimetype,
                     cacheControl: '3600',
                     upsert: true,
+                    duplex: 'half'
                 },
             )
             const avatar_path = data.path
@@ -122,7 +119,8 @@ router.post('/jadwal/:bookId/:pageId', upload.single('image'), async (req, res) 
             resizeImage, {
                 contentType: req.file.mimetype,
                 cacheControl: '3600',
-                upsert: true
+                upsert: true,
+                duplex: 'half'
             }
         )
         const query = { _id: req.params.bookId }
@@ -167,7 +165,8 @@ router.put('/:bookId/pp', upload.single('image'), async (req, res) => {
             resizeImage, {
                 contentType: req.file.mimetype,
                 cacheControl: '3600',
-                upsert: true
+                upsert: true,
+                duplex: 'half'
             }
         )
         const query = { _id: req.params.bookId }
@@ -177,6 +176,7 @@ router.put('/:bookId/pp', upload.single('image'), async (req, res) => {
         if (!result) {return res.status(404).json({ success: false, error: 'book' })}
         return res.json({profile: result.profile})
     } catch (err) {
+        console.log(err)
         return res.status(404).json({ success: false, error: err })
     }
 })
@@ -193,7 +193,8 @@ router.post('/:bookId/:pageId/:listId', upload.single('image'), async (req, res)
             {
                 contentType: req.file.mimetype,
                 cacheControl: '3600',
-                upsert: true
+                upsert: true,
+                duplex: 'half'
             }
         )
         const query = {

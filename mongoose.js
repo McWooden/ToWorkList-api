@@ -17,4 +17,8 @@ export const connectDB = async () => {
     }
 }
 import { createClient } from '@supabase/supabase-js'
-export const supabase = (process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {auth: {persistSession: false}})
+export const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {auth: {persistSession: false}})
+export const supabaseAndDuplexTrue = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+    auth: {persistSession: false},
+    duplex: 'half'
+})

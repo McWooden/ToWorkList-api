@@ -3,6 +3,7 @@ const router = express.Router()
 import { Book } from './schema.js'
 import { currDate } from './utils.js'
 import { supabase } from './mongoose.js'
+import { supabaseAndDuplexTrue } from './mongoose.js'
 
 router.get('/', (req, res) => {
     Book.find({}, (err, book) => {
@@ -250,12 +251,11 @@ router.delete('/:bookId', async (req, res) => {
                 const filteredArray = [...picArray, ...jadwalUrlArray, book.profile.avatar_url].filter((value) => {
                     return value !== 'default' && value !== 'hello'
                 })
-                await supabase.storage.from('book').remove(filteredArray)
+                await supabaseAndDuplexTrue.storage.from('book').remove(filteredArray)
                 await Book.deleteOne({_id: book._id})
                 res.send('book has been delete, say good bye :)')
             } catch (error) {
-                // console.log('Your body request:', req.body)
-                console.log('This the findOne', req.params.bookId, req.body.profile)
+                console.log('This the findOne', req.params.bookId, req.body.profile, error)
             }
         })
     } catch (error) {
