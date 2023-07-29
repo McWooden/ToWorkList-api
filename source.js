@@ -3,6 +3,7 @@ const router = express.Router()
 import { Book } from './schema.js'
 import { supabase } from './mongoose.js'
 
+
 router.get('/list/:pageId/:listId', (req, res) => {
     Book.findOne({ 'pages._id': req.params.pageId }, { 'pages.$': 1 })
     .then(result => {
@@ -82,24 +83,28 @@ router.delete('/addTodo/:pageId/:listId', async (req, res) => {
         new: true,
         arrayFilters: [{ 'page._id': req.params.pageId }]
     }
+    const originalData = await Book.findOne({ 'pages._id': req.params.pageId }, { 'pages.$': 1 })
+
     Book.findOneAndUpdate(query, update, options)
     .then(async result => {
         if (result) {
+            const pageBeforeUpdate = originalData.pages.id(req.params.pageId)
+            const listBeforeUpdate = pageBeforeUpdate.list.id(req.params.listId)
+
             const page = result.pages.id(req.params.pageId)
+            const list = page.list.id(req.params.listId)
+
             if (req.query.returnPage) {
                 res.json(page)
             } else {
-                const list = page.list.id(req.params.listId)
-                
-                const filteredArray = list.images.reduce((acc, image) => {
-                    acc.push(image.pic)
-                },[]).filter((value) => {
-                    return value !== 'default' && value !== 'hello'
-                })
-                await supabase.storage.from('book').remove(filteredArray)
-
                 res.json(list)
             }
+            const filteredArray = listBeforeUpdate.images.reduce((acc, image) => {
+                acc.push(image.pic)
+            },[]).filter((value) => {
+                return value !== 'default' && value !== 'hello'
+            })
+            await supabase.storage.from('book').remove(filteredArray)
         } else {
             res.status(404).json({ success: false, error: 'Page or List not found' })
         }

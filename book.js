@@ -189,24 +189,29 @@ router.put('/:bookId/page/:pageId', (req, res) => {
         res.status(404).json({ success: false, error: err })
     })
 })
-router.delete('/:bookId/page/:pageId', (req, res) => {
+router.delete('/:bookId/page/:pageId', async (req, res) => {
+    const originalData = await Book.findOne({ 'pages._id': req.params.pageId }, { 'pages.$': 1 })
+
     const query = { '_id': req.params.bookId }
     const update = { $pull: { 'pages': {_id: req.params.pageId} } }
     const options = { new: true }
+
     Book.findOneAndUpdate(query, update, options)
     .then(async result => {
         if (result) {
-            const pagesDetails = result.pages.map(p => ({details: p.details, _id: p._id }))
-            const page = result.pages.id(req.params.pageId)
-            const picArray = page.list.reduce((accumulator, item) => {
+            const pageOriginal = originalData.pages.id(req.params.pageId)
+            const picArray = pageOriginal.list.reduce((accumulator, item) => {
                 item.images.forEach((image) => {
                     accumulator.push(image.pic)
                 })
                 return accumulator
-            }, []).filter((value) => {
+            }, [])
+            const filteredArray = [...picArray, pageOriginal.details.jadwal_url].filter((value) => {
                 return value !== 'default' && value !== 'hello'
             })
-            await supabase.storage.from('book').remove(picArray)
+            await supabase.storage.from('book').remove(filteredArray)
+
+            const pagesDetails = result.pages.map(p => ({details: p.details, _id: p._id }))
             res.json({pages: pagesDetails})
         } else {
             res.status(404).json({ success: false, error: 'book or page not found' })
@@ -262,114 +267,4 @@ router.delete('/:bookId', async (req, res) => {
         res.status(404).send(error)
     }
 })
-// auto add
-// router.get('/:bookId/add/page', async (req, res) => {
-//     try {
-//         const updatedDocument = await Book.findOneAndUpdate(
-//             { _id: req.params.bookId },
-//             { $push: { 'pages': {
-//                 details: {
-//                     page_title: 'Page Test',
-//                     icon: 'faCheck',
-//                     jadwal_url: 'https://source.unsplash.com/random/test',
-//                 },
-//                 list: [{
-//                     details: {
-//                         item_title: 'First list',
-//                         desc: 'ini adalah list pertamamu',
-//                         color: 'yellowgreen',
-//                         deadline: '12/31/2022'
-//                     },
-//                     dones: [],
-//                     notes: [{
-//                         context: 'catatan tentang list berada disini',
-//                         by: 'developer',
-//                         date: '12/30/2022',
-//                         color: 'royalblue'
-//                     }],
-//                     images: [{
-//                         pic: 'hello',
-//                         desc: 'gambar disimpan disini',
-//                         date: '12/30/2022',
-//                         by: 'developer'
-//                     }],
-//                     chat: [{
-//                         nickname: 'developer',
-//                         msg: 'kamu bisa membahas list disini',
-//                         time: '22.50',
-//                         date: '12/30/2022'
-//                     }]
-//                 }]
-//             } } },
-//             { new: true }
-//         )
-//         res.json(updatedDocument)
-//     } catch (err) {
-//         res.status(500).json({ message: err.message })
-//     }
-// })
-// router.get('/addBook', (req, res) => {
-//     const currentDate = currDate()
-//     let book = new Book({
-//         profile: {
-//             book_title: 'Buku Huddin',
-//             avatar_url: 'https://source.unsplash.com/random/buku panduan',
-//             create_at: currentDate,
-//             author: {
-//                 nickname: 'Huddin',
-//                 tag: '2145'
-//             },
-//         },
-//         pages: [{
-//             details: {
-//                 page_title: 'Tugas harian',
-//                 icon: 'faAddressBook',
-//                 jadwal_url: 'https://source.unsplash.com/random/Welcome-buku panduan',
-//             },
-//             list: [{
-//                 details: {
-//                     item_title: 'First list',
-//                     desc: 'ini adalah list pertamamu',
-//                     color: 'yellowgreen',
-//                     deadline: currentDate
-//                 },
-//                 dones: [],
-//                 notes: [{
-//                     context: 'catatan tentang list berada disini',
-//                     by: 'developer',
-//                     date: currentDate,
-//                     color: 'royalblue'
-//                 }],
-//                 images: [{
-//                     pic: 'https://source.unsplash.com/random/introduce',
-//                     desc: 'gambar disimpan disini',
-//                     date: currentDate,
-//                     by: 'developer'
-//                 }],
-//                 chat: [{
-//                     nickname: 'Tutorial',
-//                     msg: 'kamu bisa membahas list disini',
-//                     time: '22.50',
-//                     date: currentDate
-//                 }]
-//             }]
-//         }],
-//         users: [{
-//             details: {
-//                 role: 'Admin',
-//                 role_color: 'goldenrod'
-//             },
-//             member: [{
-//                 nickname: 'Huddin', 
-//                 tag: '4235', 
-//                 avatar: 'https://source.unsplash.com/random/McWooden', 
-//                 status: 'learning'
-//             }]
-//         }],
-//     })
-//     book.save()
-//     console.log(book)
-//     res.send('buku baru dibuat')
-// })
-
 export default router
