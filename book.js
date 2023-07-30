@@ -94,6 +94,27 @@ router.post('/join/:bookId', (req, res) => {
     })
 })
 
+router.post('/leave/:bookId', (req, res) => {
+    const bookId = req.params.bookId
+    const userIdToRemove = req.query.userId
+
+    const removeUserUpdate = {
+        $pull: {
+            'users': { _id: userIdToRemove }
+        }
+    }
+
+    Book.findByIdAndUpdate(bookId, removeUserUpdate)
+    .then(result => {
+        if (result) return res.json({msg: 'ok'})
+        res.json({msg: 'user doesnt exist'})
+    }).catch(error => {
+        console.error('Error:', error)
+        res.status(500).json({ msg: 'Server Error' })
+    })
+})
+
+
 // get rooms
 router.get('/:bookId/get/pages/details', (req, res) => {
     Book.findById(req.params.bookId).select('pages.details pages._id users').exec((err, pages) => {
