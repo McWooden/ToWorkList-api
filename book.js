@@ -54,27 +54,46 @@ router.get('/join/:bookId', (req, res) => {
 router.post('/join/:bookId', (req, res) => {
     const query = req.params.bookId
     const newUser = req.body
-    const update = { $addToSet: { 'users': {
-        _id: newUser._id,
-        nickname: newUser.nickname,
-        tag: newUser.tag, 
-        avatar: newUser.avatar, 
-        status: '-',
-        role: [],
-        joined_at: +new Date()
-    }}}
-    const options = { 
-        new: true,
-    }
-    Book.findByIdAndUpdate(query, update, options, (err, book) => {
-        if (err) return res.send('buku tidak ditemukan :)')
-        const filteredData = {
-            profile: book.profile,
-            _id: book._id
+    const update = {
+        $addToSet: {
+            'users': {
+                _id: newUser._id,
+                nickname: newUser.nickname,
+                tag: newUser.tag,
+                avatar: newUser.avatar,
+                status: '-',
+                role: [],
+                joined_at: +new Date()
+            }
         }
-        res.json(filteredData)
+    }
+    const options = {new: true,}
+    
+    Book.findById(query, (err, book) => {
+        if (err) return res.send('Buku tidak ditemukan :)')
+        
+        const userExists = book.users.some(user => user._id === newUser._id)
+        
+        if (userExists) {
+            const filteredData = {
+                profile: book.profile,
+                _id: book._id
+            }
+            return res.json(filteredData)
+        } else {
+            Book.findByIdAndUpdate(query, update, options, (err, updatedBook) => {
+                if (err) return res.send('Gagal memperbarui buku.')
+                
+                const filteredData = {
+                    profile: updatedBook.profile,
+                    _id: updatedBook._id
+                }
+                res.json(filteredData)
+            })
+        }
     })
 })
+
 // get rooms
 router.get('/:bookId/get/pages/details', (req, res) => {
     Book.findById(req.params.bookId).select('pages.details pages._id users').exec((err, pages) => {
