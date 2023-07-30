@@ -94,7 +94,7 @@ router.post('/join/:bookId', (req, res) => {
     })
 })
 
-router.post('/leave/:bookId', (req, res) => {
+router.put('/leave/:bookId', (req, res) => {
     const bookId = req.params.bookId
     const userIdToRemove = req.query.userId
 
