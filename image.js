@@ -131,8 +131,7 @@ router.post('/jadwal/:bookId/:pageId', upload.single('image'), async (req, res) 
         }
         const result = await Book.findOneAndUpdate(query, update, options)
         if (!result) {return res.status(404).json({ success: false, error: 'book or page not found' })}
-        const page = result.pages.find(obj => obj._id.toString() === req.params.pageId)
-        return res.json(page)
+        return res.json({jadwal_url: namaBaru})
     } catch (err) {
         return res.status(404).json({ success: false, error: err })
     }
