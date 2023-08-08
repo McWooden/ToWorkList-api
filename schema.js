@@ -76,3 +76,28 @@ export const User = mongoose.model('users', {
     label: [String],
     pengikut: [mongoose.Schema.Types.ObjectId]
 })
+const mailSchema = new mongoose.Schema({
+    pengirim: {type: {
+        nama: String,
+        avatar: String,
+        _id: mongoose.Schema.Types.ObjectId,
+    }, default: {
+        nama: 'Anonymous',
+        _id: 'anon'
+    }},
+    penerima: {type: [{
+        nama: String,
+        _id: mongoose.Schema.Types.ObjectId,
+        avatar: String,
+        type: String
+    }], default: []},
+    subjek: {type: String, default: 'Tanpa Subject'},
+    body: {type: String, default: 'Kosong'},
+    dibaca: {type: [mongoose.Schema.Types.ObjectId], default: []},
+    createdAt: {
+        type: Date,
+        default: Date.now,
+        expires: '14d'
+    },
+})
+export const Mail = mongoose.model('email', mailSchema)
