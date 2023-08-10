@@ -8,10 +8,24 @@ router.post('/send', async (req, res) => {
         const newMail = new Mail({...data})
         await newMail.save()
     
-        res.status(201).json({ message: 'Email sent successfully.' })
+        res.status(201).json({ message: 'Surat dikirim dengan sukses' })
       } catch (error) {
-        res.status(500).json({ error: 'Failed to send email.' })
+        res.status(500).json({ error: 'Surat gagal dikirim' })
     }
+})
+router.post('/balasan/:mailId', async (req, res) => {
+    const balas = req.body
+
+    const query = { '_id': req.params.mailId }
+    const update = { $push: { 'balasan': balas } }
+    const options = { new: true }
+    Mail.findOneAndUpdate(query, update, options)
+    .then(result => {
+        res.json({mail: result})
+    }).catch(err => {
+        console.log(err)
+        res.status(404).json({ success: false, error: err })
+    })
 })
 router.get('/:userId', (req, res) => {
     try {
@@ -22,7 +36,7 @@ router.get('/:userId', (req, res) => {
             res.json({mails: mail})
         })
     } catch (error) {
-        res.status(500).json({ error: 'Failed to get email.' })
+        res.status(500).json({ error: 'Gagal mengambil surat' })
     }
 })
 

@@ -78,7 +78,7 @@ export const User = mongoose.model('users', {
 })
 const mailSchema = new mongoose.Schema({
     pengirim: {type: {
-        nama: String,
+        nama: {type: String, default: 'Anonymous'},
         avatar: String,
         _id: mongoose.Schema.Types.ObjectId,
     }, default: {
@@ -99,5 +99,9 @@ const mailSchema = new mongoose.Schema({
         default: Date.now,
         expires: '14d'
     },
+    balasan: {
+        type: [Object],
+        default: []
+    }
 })
 export const Mail = mongoose.model('email', mailSchema)
