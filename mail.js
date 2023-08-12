@@ -2,6 +2,12 @@ import express from 'express'
 const router = express.Router()
 import { Mail } from './schema.js'
 
+router.get('/deleteAll', async (req, res) => {
+    Mail.deleteMany({}, (err, mail) => {
+        res.json({success: true})
+    })
+})
+
 router.post('/send', async (req, res) => {
     const data = req.body
     try {
@@ -10,6 +16,7 @@ router.post('/send', async (req, res) => {
     
         res.status(201).json({ message: 'Surat dikirim dengan sukses' })
       } catch (error) {
+        console.log(error)
         res.status(500).json({ error: 'Surat gagal dikirim' })
     }
 })
@@ -29,7 +36,7 @@ router.post('/balasan/:mailId', async (req, res) => {
 })
 router.get('/:userId', (req, res) => {
     try {
-        Mail.find({'penerima': req.params.userId}, (err, mail) => {
+        Mail.find({'penerima._id': req.params.userId}, (err, mail) => {
             if(!mail) {
                 return res.json({mails: []})
             }
@@ -39,5 +46,23 @@ router.get('/:userId', (req, res) => {
         res.status(500).json({ error: 'Gagal mengambil surat' })
     }
 })
+router.put('/:userId', async (req, res) => {
+    try {
+        const result = await Mail.updateMany(
+            { _id: { $in: req.body.arrayOfId } }, 
+            { $pull: { 'penerima': {_id: req.params.userId} } }
+        )
 
+        const updatedMails = await Mail.find({ 'penerima._id': req.params.userId })
+
+        if (!updatedMails) {
+            return res.json({ success: true, mails: [] })
+        }
+
+        res.json({ success: true, mails: updatedMails })
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Gagal menghapus surat' });
+    }
+});
 export default router

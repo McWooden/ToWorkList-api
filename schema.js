@@ -85,12 +85,7 @@ const mailSchema = new mongoose.Schema({
         nama: 'Anonymous',
         _id: 'anon'
     }},
-    penerima: {type: [{
-        nama: String,
-        _id: mongoose.Schema.Types.ObjectId,
-        avatar: String,
-        type: String
-    }], default: []},
+    penerima: [Object], default: [],
     subjek: {type: String, default: 'Tanpa Subject'},
     body: {type: String, default: 'Kosong'},
     dibaca: {type: [mongoose.Schema.Types.ObjectId], default: []},
