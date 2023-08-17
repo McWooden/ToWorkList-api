@@ -2,6 +2,7 @@ import express from 'express'
 const router = express.Router()
 import { Book } from './schema.js'
 import { supabase } from './mongoose.js'
+import mongoose from "mongoose"
 
 
 router.get('/list/:pageId/:listId', (req, res) => {
@@ -46,17 +47,13 @@ router.post('/addTodo/:pageId', (req, res) => {
             date: currDate,
             color: 'royalblue'
         }],
-        images: [{
-            pic: 'Tutorial',
-            desc: 'gambar disimpan disini',
-            date: currDate,
-            by: 'Tutorial'
-        }],
+        images: [],
         chat: [{
             nickname: 'Tutorial',
             msg: 'chat disini!',
             date: currDate
-        }]
+        }],
+        order: 1
     }
     Book.findOneAndUpdate(
         {'pages': { $elemMatch: { _id: req.params.pageId } }},
@@ -99,12 +96,17 @@ router.delete('/addTodo/:pageId/:listId', async (req, res) => {
             } else {
                 res.json(list)
             }
-            const filteredArray = listBeforeUpdate.images.reduce((acc, image) => {
-                acc.push(image.pic)
-            },[]).filter((value) => {
-                return value !== 'default' && value !== 'hello'
-            })
-            await supabase.storage.from('book').remove(filteredArray)
+            try {
+                const filteredArray = listBeforeUpdate.images.reduce((acc, image) => {
+                    acc.push(image.pic)
+                },[]).filter((value) => {
+                    return value !== 'default' && value !== 'hello'
+                })
+                await supabase.storage.from('book').remove(filteredArray)
+            } catch (error) {
+                console.log(listBeforeUpdate.images)
+                console.log(error)
+            }
         } else {
             res.status(404).json({ success: false, error: 'Page or List not found' })
         }
@@ -196,5 +198,33 @@ router.get('/checkTodo/:pageId/:listId/:nickname', (req, res) => {
         console.log(err)
     })
 })
+router.put('/order/:pageId', async (req, res) => {
+    const { newOrder } = req.body;
+
+    try {
+        const bulkUpdateOps = newOrder.map(item => ({
+            updateOne: {
+                filter: {
+                    'pages': { $elemMatch: { _id: mongoose.Types.ObjectId(req.params.pageId) } }
+                },
+                update: {
+                    $set: { 'pages.$[i].list.$[j].order': item.order }
+                },
+                arrayFilters: [
+                    { 'i._id': mongoose.Types.ObjectId(req.params.pageId) },
+                    { 'j._id': mongoose.Types.ObjectId(item._id) }
+                ]
+            }
+        }));
+        
+        const result = await Book.bulkWrite(bulkUpdateOps);
+        res.json({ success: true });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: 'An error occurred while updating page orders.' });
+    }
+});
+
+
 
 export default router

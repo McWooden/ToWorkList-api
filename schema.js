@@ -1,4 +1,4 @@
-import mongoose, { isObjectIdOrHexString } from "mongoose"
+import mongoose from "mongoose"
 export const Book = mongoose.model('books', {
     profile: {
         book_title: String,
@@ -25,6 +25,7 @@ export const Book = mongoose.model('books', {
                 deadline: String
             },
             dones: [String],
+            order: {type: Number, default: 0},
             notes: [{
                 context: String,
                 by: String,
@@ -57,7 +58,7 @@ export const Book = mongoose.model('books', {
         role: [String],
         joined_at: String,
         _id: mongoose.Schema.Types.ObjectId
-    }]
+    }],
 })
 export const User = mongoose.model('users', {
     name: String,
