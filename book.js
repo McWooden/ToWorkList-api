@@ -171,24 +171,9 @@ router.post('/:bookId/page', (req, res) => {
                 deadline: currentDate
             },
             dones: [],
-            notes: [{
-                context: 'catatan tentang list berada disini',
-                by: 'developer',
-                date: currentDate,
-                color: 'royalblue'
-            }],
-            images: [{
-                pic: 'hello',
-                desc: 'gambar disimpan disini',
-                date: currentDate,
-                by: 'developer'
-            }],
-            chat: [{
-                nickname: 'Tutorial',
-                msg: 'kamu bisa membahas list disini',
-                time: '22.50',
-                date: currentDate
-            }]
+            notes: [],
+            images: [],
+            chat: []
         }]
     }
 

@@ -36,19 +36,22 @@ router.post('/addBook', upload.single('image'), async (req, res) => {
                         context: 'catatan tentang list berada disini',
                         by: dataClient.author.nickname,
                         date: currentDate,
-                        color: 'royalblue'
+                        color: 'royalblue',
+                        order: 1
                     }],
                     images: [{
                         pic: 'hello',
                         desc: 'gambar disimpan disini',
                         date: currentDate,
-                        by: dataClient.author.nickname
+                        by: dataClient.author.nickname,
+                        order: 1
                     }],
                     chat: [{
                         nickname: 'Tutorial',
                         msg: 'kamu bisa membahas list disini',
                         date: currentDate
-                    }]
+                    }],
+                    order: 1
                 }]
             }],
             roles: [{

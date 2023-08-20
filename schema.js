@@ -25,25 +25,27 @@ export const Book = mongoose.model('books', {
                 deadline: String
             },
             dones: [String],
-            order: {type: Number, default: 0},
             notes: [{
                 context: String,
                 by: String,
                 date: String,
-                color: String
+                color: String,
+                order: {type: Number, default: 0}
             }],
             images: [{
                 pic: String,
                 desc: String,
                 date: String,
-                by: String
+                by: String,
+                order: {type: Number, default: 0}
             }],
             chat: [{
                 nickname: String,
                 msg: String,
                 time: String,
                 date: String
-            }]
+            }],
+            order: {type: Number, default: 0},
         }] 
     }],
     roles: [{

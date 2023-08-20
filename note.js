@@ -12,7 +12,8 @@ router.post('/:pageId/:listId', (req, res) => {
                 context: req.body.context || req.body.desc,
                 by: req.body.by,
                 date: +new Date(),
-                color: req.body.color
+                color: req.body.color,
+                order: 1,
             }
         }
     }
