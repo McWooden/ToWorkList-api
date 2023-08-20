@@ -2,8 +2,6 @@ import express from 'express'
 const router = express.Router()
 import { Book } from './schema.js'
 import { supabase } from './mongoose.js'
-import mongoose from "mongoose"
-
 
 router.get('/list/:pageId/:listId', (req, res) => {
     Book.findOne({ 'pages._id': req.params.pageId }, { 'pages.$': 1 })
@@ -189,88 +187,5 @@ router.get('/checkTodo/:pageId/:listId/:nickname', (req, res) => {
         console.log(err)
     })
 })
-router.put('/order/:pageId', async (req, res) => {
-    const { newOrder } = req.body
-
-    try {
-        const bulkUpdateOps = newOrder.map(item => ({
-            updateOne: {
-                filter: {
-                    'pages': { $elemMatch: { _id: mongoose.Types.ObjectId(req.params.pageId) } }
-                },
-                update: {
-                    $set: { 'pages.$[i].list.$[j].order': item.order }
-                },
-                arrayFilters: [
-                    { 'i._id': mongoose.Types.ObjectId(req.params.pageId) },
-                    { 'j._id': mongoose.Types.ObjectId(item._id) }
-                ]
-            }
-        }))
-        
-        const result = await Book.bulkWrite(bulkUpdateOps)
-        res.json({ success: true })
-    } catch (error) {
-        console.error(error)
-        res.status(500).json({ success: false, error: 'An error occurred while updating page orders.' })
-    }
-})
-
-router.put('/order/notes/:pageId/:todoId', async (req, res) => {
-    const { newOrder } = req.body
-
-    try {
-        const bulkUpdateOps = newOrder.map(item => ({
-            updateOne: {
-                filter: {
-                    'pages': { $elemMatch: { _id: mongoose.Types.ObjectId(req.params.pageId) } }
-                },
-                update: {
-                    $set: { 'pages.$[i].list.$[j].notes.$[k].order': item.order }
-                },
-                arrayFilters: [
-                    { 'i._id': mongoose.Types.ObjectId(req.params.pageId) },
-                    { 'j._id': mongoose.Types.ObjectId(req.params.todoId) },
-                    { 'k._id': mongoose.Types.ObjectId(item._id) },
-                ]
-            }
-        }))
-        
-        const result = await Book.bulkWrite(bulkUpdateOps)
-        res.json({ success: true })
-    } catch (error) {
-        console.error(error)
-        res.status(500).json({ success: false, error: 'An error occurred while updating page orders.' })
-    }
-})
-router.put('/order/images/:pageId/:todoId', async (req, res) => {
-    const { newOrder } = req.body
-
-    try {
-        const bulkUpdateOps = newOrder.map(item => ({
-            updateOne: {
-                filter: {
-                    'pages': { $elemMatch: { _id: mongoose.Types.ObjectId(req.params.pageId) } }
-                },
-                update: {
-                    $set: { 'pages.$[i].list.$[j].images.$[k].order': item.order }
-                },
-                arrayFilters: [
-                    { 'i._id': mongoose.Types.ObjectId(req.params.pageId) },
-                    { 'j._id': mongoose.Types.ObjectId(req.params.todoId) },
-                    { 'k._id': mongoose.Types.ObjectId(item._id) },
-                ]
-            }
-        }))
-        
-        const result = await Book.bulkWrite(bulkUpdateOps)
-        res.json({ success: true })
-    } catch (error) {
-        console.error(error)
-        res.status(500).json({ success: false, error: 'An error occurred while updating page orders.' })
-    }
-})
-
-
 
 export default router

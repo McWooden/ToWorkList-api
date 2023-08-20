@@ -26,6 +26,7 @@ import notes from './note.js'
 import image from './image.js'
 import search from './search.js'
 import mail from './mail.js'
+import order from './order.js'
 
 // app
 app.get('/', (req, res) => {
@@ -39,7 +40,7 @@ app.use('/chat', chat)
 app.use('/image', image)
 app.use('/search', search)
 app.use('/mail', mail)
-
+app.use('/order', order)
 
 
 

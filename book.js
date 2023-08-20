@@ -117,7 +117,7 @@ router.put('/leave/:bookId', (req, res) => {
 
 // get rooms
 router.get('/:bookId/get/pages/details', (req, res) => {
-    Book.findById(req.params.bookId).select('pages.details pages._id users').exec((err, pages) => {
+    Book.findById(req.params.bookId).select('pages.details pages._id pages.order users').exec((err, pages) => {
         if(err) {
             return res.status(500).send(err)
         }
@@ -174,7 +174,8 @@ router.post('/:bookId/page', (req, res) => {
             notes: [],
             images: [],
             chat: []
-        }]
+        }],
+        order: 1,
     }
 
     const query = { '_id': req.params.bookId }
@@ -292,4 +293,5 @@ router.delete('/:bookId', async (req, res) => {
         res.status(404).send(error)
     }
 })
+
 export default router

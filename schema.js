@@ -46,7 +46,8 @@ export const Book = mongoose.model('books', {
                 date: String
             }],
             order: {type: Number, default: 0},
-        }] 
+        }],
+        order: {type: Number, default: 0},
     }],
     roles: [{
         name: String,
