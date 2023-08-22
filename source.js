@@ -8,6 +8,7 @@ router.get('/list/:pageId/:listId', (req, res) => {
     .then(result => {
         const page = result.pages[0]
         const list = page.list.id(req.params.listId)
+        console.log(req.params.pageId, req.params.listId);
         if (list) {
             res.json(list)
         } else {

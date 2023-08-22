@@ -8,6 +8,10 @@ import cookieParser from 'cookie-parser'
 app.use(cookieParser())
 const port = process.env.PORT || 3001
 
+import helmet from 'helmet'
+
+app.use(helmet())
+
 import './mongoose.js'
 import { connectDB } from './mongoose.js'
 import cors from 'cors'
