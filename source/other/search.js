@@ -1,5 +1,5 @@
 import express from 'express'
-import { Book, User } from './schema.js'
+import { Book, User } from '../database/schema.js'
 const router = express.Router()
 
 router.get('/key', async (req, res) => {

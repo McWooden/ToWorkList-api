@@ -1,7 +1,7 @@
 import express from 'express'
 const router = express.Router()
-import { Book } from './schema.js'
-import { supabase } from './mongoose.js'
+import { Book } from '../database/schema.js'
+import { supabase } from '../database/mongoose.js'
 
 router.get('/list/:pageId/:listId', (req, res) => {
     Book.findOne({ 'pages._id': req.params.pageId }, { 'pages.$': 1 })

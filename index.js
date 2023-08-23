@@ -12,8 +12,8 @@ import helmet from 'helmet'
 
 app.use(helmet())
 
-import './mongoose.js'
-import { connectDB } from './mongoose.js'
+import './source/database/mongoose.js'
+import { connectDB } from './source/database/mongoose.js'
 import cors from 'cors'
 app.use(cors())
 app.use((req, res, next) => {
@@ -22,15 +22,15 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
     next()
 })
-import book from './book.js'
-import user from './user.js'
-import source from './source.js'
-import chat from './chat.js'
-import notes from './note.js'
-import image from './image.js'
-import search from './search.js'
-import mail from './mail.js'
-import order from './order.js'
+import book from './source/book/book.js'
+import user from './source/user/user.js'
+import source from './source/book/source.js'
+import chat from './source/book/chat.js'
+import notes from './source/book/note.js'
+import image from './source/book/image.js'
+import search from './source/other/search.js'
+import mail from './source/mail/mail.js'
+import order from './source/other/order.js'
 
 // app
 app.get('/', (req, res) => {

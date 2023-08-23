@@ -1,7 +1,7 @@
 import express from 'express'
 const router = express.Router()
-import { User } from './schema.js'
-import { generate4DigitNumber } from './utils.js'
+import { User } from '../database/schema.js'
+import { encrypt, generate4DigitNumber } from '../utils/utils.js'
 import jwt_decode from "jwt-decode";
 
 router.get('/avaible/:checkNickname', async (req, res) => {
@@ -37,7 +37,7 @@ router.put('/login/google', async (req, res) => {
             const {_doc: user} = await User.findOne({ email: credential.email})
             if (user) {
                 const {__v, password, ...account} = user
-                res.send(account)
+                res.send(encrypt(account))
             } else {
                 res.send(`Akun anda tidak ditemukan`)
             }
@@ -52,7 +52,7 @@ router.put('/login/form', async (req, res) => {
     try {
         const {_doc: user} = await User.findOne({ password: req.body.password, nickname: new RegExp(`^${req.body.nickname}$`, 'i') })
         const {__v, password, ...account} = user
-        res.send(account)
+        res.send(encrypt(account))
     } catch (err) {
         res.status(404).send('akun tidak ditemukan')
     }
@@ -68,7 +68,7 @@ router.put('/pemulihan', (req, res) => {
                 res.status(404).send('Akun tidak ditemukan')
             } else {
                 const { __v, password, ...account } = user._doc
-                res.send(account)
+                res.send(encrypt(account))
             }
         })
     } else {
@@ -88,7 +88,7 @@ router.post('/pemulihan', (req, res) => {
                 res.status(404).send('Akun tidak ditemukan')
             } else {
                 delete user.password
-                res.send(user)
+                res.send(encrypt(user))
             }
         }
     )
@@ -163,7 +163,7 @@ router.post('/', async (req, res) => {
     const {_doc: user} = data
     let {password, ...rest} = user
     data.save()
-    res.send({rest, message: 'Akun berhasil dibuat'})
+    res.json({account: encrypt(rest), message: 'Akun berhasil dibuat'})
 })
 
 router.get('/summary/:userId', (req, res) => {

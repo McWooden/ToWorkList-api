@@ -1,11 +1,11 @@
 import express from 'express'
 import multer from 'multer'
-import { supabaseAndDuplexTrue as supabase } from './mongoose.js'
+import { supabaseAndDuplexTrue as supabase } from '../database/mongoose.js'
 const router = express.Router()
 const storage = multer.memoryStorage()
 const upload = multer({storage: storage})
 import sharp from 'sharp'
-import { Book } from './schema.js'
+import { Book } from '../database/schema.js'
 
 router.post('/addBook', upload.single('image'), async (req, res) => {
     try {

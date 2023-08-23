@@ -1,9 +1,9 @@
 import express from 'express'
 const router = express.Router()
-import { Book } from './schema.js'
-import { currDate } from './utils.js'
-import { supabase } from './mongoose.js'
-import { supabaseAndDuplexTrue } from './mongoose.js'
+import { Book } from '../database/schema.js'
+import { currDate } from '../utils/utils.js'
+import { supabase } from '../database/mongoose.js'
+import { supabaseAndDuplexTrue } from '../database/mongoose.js'
 
 router.get('/', (req, res) => {
     Book.find({}, (err, book) => {
