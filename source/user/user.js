@@ -37,7 +37,7 @@ router.put('/login/google', async (req, res) => {
             const {_doc: user} = await User.findOne({ email: credential.email})
             if (user) {
                 const {__v, password, ...account} = user
-                res.send(encrypt(account))
+                res.json({account: encrypt(account)})
             } else {
                 res.send(`Akun anda tidak ditemukan`)
             }
@@ -52,7 +52,7 @@ router.put('/login/form', async (req, res) => {
     try {
         const {_doc: user} = await User.findOne({ password: req.body.password, nickname: new RegExp(`^${req.body.nickname}$`, 'i') })
         const {__v, password, ...account} = user
-        res.send(encrypt(account))
+        res.json({account: encrypt(account)})
     } catch (err) {
         res.status(404).send('akun tidak ditemukan')
     }
@@ -68,7 +68,7 @@ router.put('/pemulihan', (req, res) => {
                 res.status(404).send('Akun tidak ditemukan')
             } else {
                 const { __v, password, ...account } = user._doc
-                res.send(encrypt(account))
+                res.json({account: encrypt(account)})
             }
         })
     } else {
@@ -103,7 +103,7 @@ router.put('/', async (req, res) => {
         return res.status(404).json({ error: 'User not found' })
       }
       let {password, ...rest} = updatedUser
-      return res.json(rest)
+      return res.json({account: encrypt(rest)})
     } catch (error) {
       console.error(error)
       return res.status(500).json({ error: 'Server error' })
@@ -118,7 +118,7 @@ router.put('/label', async (req, res) => {
         return res.status(404).json({ error: 'User not found' })
       }
       let {password, ...rest} = updatedUser
-      return res.json(rest)
+      return res.json({account: encrypt(rest)})
     } catch (error) {
       console.error(error)
       return res.status(500).json({ error: 'Server error' })
@@ -133,7 +133,7 @@ router.put('/bio', async (req, res) => {
         return res.status(404).json({ error: 'User not found' })
       }
       let {password, ...rest} = updatedUser
-      return res.json(rest)
+      return res.json({account: encrypt(rest)})
     } catch (error) {
       console.error(error)
       return res.status(500).json({ error: 'Server error' })
@@ -181,7 +181,7 @@ router.get('/summary/:userId', (req, res) => {
             panggilan: user.panggilan,
             pengikutLength: user.pengikut.length,
         }
-        res.json(filteredData)
+        res.json({account: encrypt(filteredData)})
     })
 })
 
