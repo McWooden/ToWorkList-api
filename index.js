@@ -31,6 +31,7 @@ import image from './source/book/image.js'
 import search from './source/other/search.js'
 import mail from './source/mail/mail.js'
 import order from './source/other/order.js'
+import dailyTask from './source/dailyTask/dailyTask.js'
 
 // app
 app.get('/', (req, res) => {
@@ -45,6 +46,7 @@ app.use('/image', image)
 app.use('/search', search)
 app.use('/mail', mail)
 app.use('/order', order)
+app.use('/daily/task', dailyTask)
 
 
 

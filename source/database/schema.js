@@ -104,3 +104,42 @@ const mailSchema = new mongoose.Schema({
     }
 })
 export const Mail = mongoose.model('email', mailSchema)
+
+export const DailyTask = mongoose.model('dailyTask', {
+    detail: {
+        title: String,
+        createdAt: {
+            type: Date,
+            default: Date.now,
+        }
+    },
+    list: [{
+        title: {type: String, default: 'empty'},
+        subTitle: {type: String, default: ''},
+        check: [mongoose.Schema.Types.ObjectId],
+        order: {type: Number, default: 1},
+    }],
+    author: {
+        nickname: String,
+        _id: mongoose.Schema.Types.ObjectId,
+    },
+    followers: [{
+        name: String,
+        avatar: String, 
+        bestScore: {
+            date: {
+                type: Date,
+                default: Date.now
+            },
+            score: {
+                type: Number,
+                default: 0
+            }
+        },
+        _id: mongoose.Schema.Types.ObjectId
+    }],
+    currentDate: {
+        type: Date,
+        default: Date.now
+    }
+})
