@@ -37,12 +37,12 @@ router.put('/login/google', async (req, res) => {
             const {_doc: user} = await User.findOne({ email: credential.email})
             if (user) {
                 const {__v, password, ...account} = user
-                console.log(account, encrypt(account))
                 res.json({account: encrypt(account)})
             } else {
                 res.send(`Akun anda tidak ditemukan`)
             }
         } catch (err) {
+            console.log(err);
             res.status(404).send('Akun tidak ditemukan')
         }
     } else {
