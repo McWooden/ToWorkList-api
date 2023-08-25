@@ -55,6 +55,7 @@ router.put('/login/form', async (req, res) => {
         const {__v, password, ...account} = user
         res.json({account: encrypt(account)})
     } catch (err) {
+        console.log(err, req.body.password, req.body.nickname)
         res.status(404).send('akun tidak ditemukan')
     }
 })
@@ -89,7 +90,7 @@ router.post('/pemulihan', (req, res) => {
                 res.status(404).send('Akun tidak ditemukan')
             } else {
                 delete user.password
-                res.send(encrypt(user))
+                res.json({account: encrypt(user)})
             }
         }
     )
