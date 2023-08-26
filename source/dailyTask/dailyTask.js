@@ -61,29 +61,52 @@ router.post('/follow/:dailyTaskId', (req, res) => {
     })
 })
 
+router.get('/reset', async (req, res) => {
+    try {
+        await DailyTask.updateMany({}, { $set: { 'list.$[].check': [], currentDate: new Date().toISOString() } })
+
+        res.status(200).json({ message: 'Reset successful' })
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred' })
+    }
+})
+
+
 router.get('/createOne', async (req, res) => {
     const data = new DailyTask({
         detail: {
-            title: 'Tugas harian pertama',
+            title: 'Sholat Wajib',
         },
         list: [
             {
-                title: 'Tugas pertama',
-                subTitle: 'ini adalah tugas pertama',
+                title: 'Subuh',
+                subTitle: 'Dilakukan sebelum matahari terbit, yaitu dari fajar hingga sebelum terbitnya matahari',
                 check: [],
                 order: 1
             },
             {
-                title: 'Tugas kedua',
-                subTitle: 'ini adalah tugas kedua',
+                title: 'Dzuhur',
+                subTitle: 'Dilakukan saat matahari sudah condong ke barat setelah melewati tepat di atas kepala, yaitu pada waktu tengah hari',
                 check: [],
                 order: 2
             },
             {
-                title: 'Tugas ketiga',
-                subTitle: 'ini adalah tugas ketiga',
+                title: 'Ashar',
+                subTitle: 'Dilakukan pada waktu sore sebelum matahari terbenam sepenuhnya',
                 check: [],
                 order: 3
+            },
+            {
+                title: 'Maghrib',
+                subTitle: 'Dilakukan setelah matahari terbenam sepenuhnya dan waktu senja berakhir',
+                check: [],
+                order: 4
+            },
+            {
+                title: 'Isya',
+                subTitle: 'Dilakukan setelah waktu senja berakhir, biasanya pada malam hari setelah gelap',
+                check: [],
+                order: 5
             },
         ],
         author: {
