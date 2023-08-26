@@ -71,6 +71,16 @@ router.get('/reset', async (req, res) => {
     }
 })
 
+router.post('/create', async (req, res) => {
+    try {
+        const data = new DailyTask({...req.body})
+        await data.save()
+        res.json({success: true})
+    } catch (error) {
+        console.log(error);
+        res.json({success: true})
+    }
+})
 
 router.get('/createOne', async (req, res) => {
     const data = new DailyTask({
