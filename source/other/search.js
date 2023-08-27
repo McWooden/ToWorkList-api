@@ -1,5 +1,5 @@
 import express from 'express'
-import { Book, User } from '../database/schema.js'
+import { Book, User, DailyTask } from '../database/schema.js'
 const router = express.Router()
 
 router.get('/key', async (req, res) => {
@@ -12,6 +12,26 @@ router.get('/key', async (req, res) => {
     ].sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
 
     res.json(mapping)
+})
+
+router.get('/dailyTask', async (req, res) => {
+    const key = req.query.value
+    try {
+        const resTask = await DailyTask.find({ 'detail.title': { $regex: '^' + key, $options: 'i' } }).select('detail _id list followers author')
+        const mapping = [
+            ...resTask.map(x => ({
+              ...x.detail,
+              list: x.list.map(x => x.title),
+              followersLength: x.followers.length,
+              author_name: x.author.name,
+              isUserInclude: x.followers.some(user => user._id === req.query.myId),
+              _id: x._id
+            }))
+        ].sort((a, b) => a.followers.length - b.followers.length)
+        res.json(mapping)
+    } catch (error) {
+        console.log(error);
+    }
 })
 
 export default router

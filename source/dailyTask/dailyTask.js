@@ -38,6 +38,26 @@ router.put('/reverse/:taskId/:listId', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' })
     }
 })
+router.put('/follow/:taskId/:userId', async (req, res) => {
+    try {
+        const daily = await DailyTask.findById(req.params.taskId)
+        if (!daily) return res.status(404).json({ error: 'Task not found' })
+
+        const userId = req.params.userId
+        const userExists = daily.followers.id(userId)
+
+        if (userExists) {
+            daily.followers.remove(userId)
+        } else {
+            daily.followers.push({_id: userId, ...req.body})
+        }
+        await daily.save()
+        res.json({ text: userExists?'Ikuti':'Berhenti' })
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ error: 'Internal server error' })
+    }
+})
 
 router.post('/follow/:dailyTaskId', (req, res) => {
     const newFollowers = req.body
