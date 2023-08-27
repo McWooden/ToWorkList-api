@@ -1,5 +1,6 @@
 import express from 'express'
 import { DailyTask } from '../database/schema.js'
+import mongoose from 'mongoose'
 const router = express.Router()
 
 router.get('/all', async (req, res) => {
@@ -77,10 +78,22 @@ router.post('/create', async (req, res) => {
         await data.save()
         res.json({success: true})
     } catch (error) {
-        console.log(error);
+        console.log(error)
         res.json({success: true})
     }
 })
+router.delete('/:dailyTaskId', async (req, res) => {
+    try {
+        const deletedDailyTask = await DailyTask.findByIdAndDelete(req.params.dailyTaskId)
+        if (!deletedDailyTask) {
+            return res.status(404).json({ success: false })
+        }
+        res.json({ success: true })
+    } catch (err) {
+        return res.status(500).json({ success: false, error: err.message })
+    }
+})
+
 
 router.get('/createOne', async (req, res) => {
     const data = new DailyTask({
