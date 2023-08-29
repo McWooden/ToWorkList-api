@@ -1,7 +1,6 @@
 import express from 'express'
 const router = express.Router()
 import { Book } from '../database/schema.js'
-import { currDate } from '../utils/utils.js'
 import { supabase } from '../database/mongoose.js'
 import { supabaseAndDuplexTrue } from '../database/mongoose.js'
 
@@ -156,26 +155,13 @@ router.put('/:bookId/desc', (req, res) => {
 })
 // add page
 router.post('/:bookId/page', (req, res) => {
-    const currentDate = currDate()
     const data = {
         details: {
             page_title: req.body.page_title,
             icon: req.body.icon,
             jadwal_url: 'hello',
         },
-        list: [{
-            details: {
-                item_title: 'daftar pertama',
-                desc: 'ini adalah daftar pertamamu',
-                color: 'yellowgreen',
-                deadline: currentDate
-            },
-            dones: [],
-            notes: [],
-            images: [],
-            chat: []
-        }],
-        order: 1,
+        order: 999,
     }
 
     const query = { '_id': req.params.bookId }

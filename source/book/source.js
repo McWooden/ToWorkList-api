@@ -3,6 +3,7 @@ const router = express.Router()
 import { Book } from '../database/schema.js'
 import { supabase } from '../database/mongoose.js'
 
+// get source
 router.get('/list/:pageId/:listId', (req, res) => {
     Book.findOne({ 'pages._id': req.params.pageId }, { 'pages.$': 1 })
     .then(result => {
@@ -18,6 +19,7 @@ router.get('/list/:pageId/:listId', (req, res) => {
     .catch(err => res.status(404).json({ success: false, error: err }))
 })
 
+// get page
 router.get('/page/:pageId', (req, res) => {
     Book.findOne({'pages': { $elemMatch: { _id: req.params.pageId } }}, {'pages.$': 1})
     .exec((err, doc) => {
@@ -43,7 +45,7 @@ router.post('/addTodo/:pageId', (req, res) => {
         notes: [],
         images: [],
         chat: [],
-        order: 1
+        order: 999
     }
     Book.findOneAndUpdate(
         {'pages': { $elemMatch: { _id: req.params.pageId } }},
@@ -140,7 +142,7 @@ router.put('/addTodo/:pageId/:listId', (req, res) => {
     })
 })
 
-// reverse moment
+// reverse todo
 router.get('/uncheck/:pageId/:listId/:nickname', (req, res) => {
     Book.findOneAndUpdate(
         { 'pages': {$elemMatch: { _id: req.params.pageId, 'list': {$elemMatch: { _id: req.params.listId }}}}}, 
@@ -189,4 +191,52 @@ router.get('/checkTodo/:pageId/:listId/:nickname', (req, res) => {
     })
 })
 
+// add daily
+router.post('/daily/:pageId', (req, res) => {
+    Book.findOneAndUpdate(
+        {'pages': { $elemMatch: { _id: req.params.pageId } }},
+        { $push: { 'pages.$[page].dailyList': {...req.body} }},
+        { new: true, arrayFilters: [{ 'page._id': req.params.pageId }] })
+    .select('pages')
+    .exec((err, doc) => {
+        if (err) {
+            res.status(500).json({ error: err.message })
+        } else {
+            const page = doc.pages.id(req.params.pageId)
+            res.json(page)
+        }
+    })
+})
+// reverse daily
+router.put('/daily/reverse/:pageId/:taskId/:listId', async (req, res) => {
+    try {
+        const book = await Book.findOne({ 'pages': {$elemMatch: { _id: req.params.pageId, 'dailyList': {$elemMatch: { _id: req.params.taskId }}}}})
+        if (!book) return res.status(404).json({ error: 'Book not found' })
+
+        const page = book.pages.id(req.params.pageId)
+        if (!page) return res.status(404).json({ error: 'Page not found' })
+
+        const task = page.dailyList.id(req.params.taskId)
+        if (!task) return res.status(404).json({ error: 'Task not found' })
+
+        const list = task.list.id(req.params.listId)
+        if (!list) return res.status(404).json({ error: 'Task not found' })
+
+
+        const userId = req.body._id
+        const userExists = list.check.includes(userId)
+
+        if (userExists) {
+            list.check.remove(userId)
+        } else {
+            list.check.push(userId)
+        }
+
+        await book.save()
+        res.json({ task: task })
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ error: 'Internal server error' })
+    }
+})
 export default router

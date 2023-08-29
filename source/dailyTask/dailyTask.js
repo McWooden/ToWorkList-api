@@ -1,11 +1,21 @@
 import express from 'express'
 import { DailyTask } from '../database/schema.js'
-import mongoose from 'mongoose'
 const router = express.Router()
 
 router.get('/all', async (req, res) => {
     try {
         await DailyTask.find({}, (err, result) => {
+            if (err) throw new Error(err)
+            res.json({all: result})
+        })
+    } catch (error) {
+        
+    }
+})
+
+router.get('/:userId', async (req, res) => {
+    try {
+        await DailyTask.find({'followers._id': req.params.userId}, (err, result) => {
             if (err) throw new Error(err)
             res.json({all: result})
         })
@@ -52,7 +62,7 @@ router.put('/follow/:taskId/:userId', async (req, res) => {
             daily.followers.push({_id: userId, ...req.body})
         }
         await daily.save()
-        res.json({ text: userExists?'Ikuti':'Berhenti' })
+        res.json({ isFollow: userExists })
     } catch (err) {
         console.error(err)
         res.status(500).json({ error: 'Internal server error' })
@@ -125,7 +135,7 @@ router.get('/createOne', async (req, res) => {
                 title: 'Subuh',
                 subTitle: 'Dilakukan sebelum matahari terbit, yaitu dari fajar hingga sebelum terbitnya matahari',
                 check: [],
-                order: 1
+                order: 999
             },
             {
                 title: 'Dzuhur',

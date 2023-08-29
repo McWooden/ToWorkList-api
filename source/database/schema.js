@@ -46,8 +46,33 @@ export const Book = mongoose.model('books', {
                 date: String
             }],
             order: {type: Number, default: 0},
+            default: []
         }],
-        order: {type: Number, default: 0},
+        dailyList: [{
+            detail: {
+                title: String,
+                desc: {type: String, default: ''},
+                createdAt: {
+                    type: Date,
+                    default: Date.now,
+                }
+            },
+            list: [{
+                title: {type: String, default: 'empty'},
+                check: [mongoose.Schema.Types.ObjectId],
+                order: {type: Number, default: 1},
+            }],
+            author: {
+                name: String,
+                _id: mongoose.Schema.Types.ObjectId,
+            },
+            currentDate: {
+                type: Date,
+                default: Date.now
+            },
+            default: []
+        }],
+        order: {type: Number, default: 0},  
     }],
     roles: [{
         name: String,

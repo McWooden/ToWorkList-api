@@ -19,14 +19,16 @@ router.get('/dailyTask', async (req, res) => {
     try {
         const resTask = await DailyTask.find({ 'detail.title': { $regex: '^' + key, $options: 'i' } }).select('detail _id list followers author')
         const mapping = [
-            ...resTask.map(x => ({
-              ...x.detail,
-              list: x.list.map(x => x.title),
-              followersLength: x.followers.length,
-              author_name: x.author.name,
-              isUserInclude: x.followers.some(user => user._id === req.query.myId),
-              _id: x._id
-            }))
+            ...resTask.map(x => {
+                return ({
+                ...x.detail,
+                list: x.list.map(x => x.title),
+                followersLength: x.followers.length,
+                author_name: x.author.name,
+                isUserInclude: x.followers.some(user => user._id === req.query.myId),
+                _id: x._id
+                })
+        })
         ].sort((a, b) => a.followers.length - b.followers.length)
         res.json(mapping)
     } catch (error) {

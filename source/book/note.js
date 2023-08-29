@@ -13,7 +13,7 @@ router.post('/:pageId/:listId', (req, res) => {
                 by: req.body.by,
                 date: +new Date(),
                 color: req.body.color,
-                order: 1,
+                order: 999,
             }
         }
     }
