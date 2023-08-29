@@ -207,6 +207,27 @@ router.post('/daily/:pageId', (req, res) => {
         }
     })
 })
+router.delete('/daily/:pageId/:taskId', async (req, res) => {
+    const query = {
+        'pages': { $elemMatch: { _id: req.params.pageId } }
+    }
+    const update = {
+        $pull: { 'pages.$[page].dailyList': {_id : req.params.taskId} }
+    }
+    const options = { 
+        new: true,
+        arrayFilters: [{ 'page._id': req.params.pageId }]
+    }
+    try {
+        const deletedTask = await Book.findOneAndUpdate(query, update, options)
+        if (!deletedTask) {
+            return res.status(404).json({ success: false })
+        }
+        res.json({ success: true })
+    } catch (err) {
+        return res.status(500).json({ success: false, error: err.message })
+    }
+})
 // reverse daily
 router.put('/daily/reverse/:pageId/:taskId/:listId', async (req, res) => {
     try {
@@ -248,61 +269,5 @@ router.get('/daily/reset', async (req, res) => {
         res.status(500).json({ error: 'An error occurred' })
     }
 })
-
-router.get('/daily/reset', async (req, res) => {
-    try {
-        await Book.updateMany(
-            { 'pages.details.icon': 'faChartBar' },
-            [
-                {
-                    $set: {
-                        'pages': {
-                            $map: {
-                                input: '$pages',
-                                as: 'page',
-                                in: {
-                                    $mergeObjects: [
-                                        '$$page',
-                                        {
-                                            dailyList: {
-                                                $map: {
-                                                    input: '$$page.dailyList',
-                                                    as: 'daily',
-                                                    in: {
-                                                        $mergeObjects: [
-                                                            '$$daily',
-                                                            {
-                                                                list: {
-                                                                    $map: {
-                                                                        input: '$$daily.list',
-                                                                        as: 'listItem',
-                                                                        in: {
-                                                                            $mergeObjects: [
-                                                                                '$$listItem',
-                                                                                { check: [] }
-                                                                            ]
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        ]
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            ]
-        );
-
-        res.status(200).json({ message: 'Reset successful' });
-    } catch (error) {
-        res.status(500).json({ error: 'An error occurred' });
-    }
-});
 
 export default router
