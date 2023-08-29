@@ -239,4 +239,70 @@ router.put('/daily/reverse/:pageId/:taskId/:listId', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' })
     }
 })
+router.get('/daily/reset', async (req, res) => {
+    try {
+        await Book.updateMany({ 'pages.details.icon': 'faChartBar' }, { $set: { 'pages.$[].dailyList.$[].list.$[].check': [] } })
+
+        res.status(200).json({ message: 'Reset successful' })
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred' })
+    }
+})
+
+router.get('/daily/reset', async (req, res) => {
+    try {
+        await Book.updateMany(
+            { 'pages.details.icon': 'faChartBar' },
+            [
+                {
+                    $set: {
+                        'pages': {
+                            $map: {
+                                input: '$pages',
+                                as: 'page',
+                                in: {
+                                    $mergeObjects: [
+                                        '$$page',
+                                        {
+                                            dailyList: {
+                                                $map: {
+                                                    input: '$$page.dailyList',
+                                                    as: 'daily',
+                                                    in: {
+                                                        $mergeObjects: [
+                                                            '$$daily',
+                                                            {
+                                                                list: {
+                                                                    $map: {
+                                                                        input: '$$daily.list',
+                                                                        as: 'listItem',
+                                                                        in: {
+                                                                            $mergeObjects: [
+                                                                                '$$listItem',
+                                                                                { check: [] }
+                                                                            ]
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        );
+
+        res.status(200).json({ message: 'Reset successful' });
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred' });
+    }
+});
+
 export default router
