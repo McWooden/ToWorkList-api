@@ -262,11 +262,12 @@ router.put('/daily/reverse/:pageId/:taskId/:listId', async (req, res) => {
 })
 router.get('/daily/reset', async (req, res) => {
     try {
-        await Book.updateMany({ 'pages.details.icon': 'faChartBar' }, { $set: { 'pages.$[].dailyList.$[].list.$[].check': [] } })
-
-        res.status(200).json({ message: 'Reset successful' })
+        const updateResult = await Book.updateMany(
+        {},
+        { $set: { 'pages.$[i].dailyList.$[].list.$[].check': [] } }, {arrayFilters: [{'i.details.icon': 'faChartBar'}] });
+        res.status(200).json({ message: 'Reset successful', updateResult });
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred' })
+        res.status(500).json({ error: 'An error occurred', errorMessage: error.message });
     }
 })
 
