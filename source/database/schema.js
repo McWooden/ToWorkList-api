@@ -72,6 +72,7 @@ export const Book = mongoose.model('books', {
             },
             default: []
         }],
+        history: [Object],
         order: {type: Number, default: 0},  
     }],
     roles: [{

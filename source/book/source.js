@@ -9,7 +9,7 @@ router.get('/list/:pageId/:listId', (req, res) => {
     .then(result => {
         const page = result.pages[0]
         const list = page.list.id(req.params.listId)
-        console.log(req.params.pageId, req.params.listId);
+        console.log(req.params.pageId, req.params.listId)
         if (list) {
             res.json(list)
         } else {
@@ -262,13 +262,48 @@ router.put('/daily/reverse/:pageId/:taskId/:listId', async (req, res) => {
 })
 router.get('/daily/reset', async (req, res) => {
     try {
-        const updateResult = await Book.updateMany(
-        {},
-        { $set: { 'pages.$[i].dailyList.$[].list.$[].check': [] } }, {arrayFilters: [{'i.details.icon': 'faChartBar'}] });
-        res.status(200).json({ message: 'Reset successful', updateResult });
+        const books = await Book.find({})
+
+        let returnedData = []
+
+        for (const book of books) {
+            for (const page of book.pages) {
+                if (page.details.icon === 'faChartBar') {
+                    const filteredDailyList = page.dailyList?.map(item => {
+                        const hasCheckedItem = item.list.some(checkItem => checkItem.check.length > 0)
+
+                        if (hasCheckedItem) {
+                            return {
+                                date: new Date().toISOString(),
+                                list: item.list,
+                                detail: item.detail
+                            }
+                        }
+                    }).filter(Boolean)
+
+                    if (filteredDailyList.length > 0) {
+                        page.history.push(...filteredDailyList)
+                        returnedData.push(...filteredDailyList)
+                    }
+
+                    page.dailyList.forEach(item => {
+                        item.list.forEach(checkItem => {
+                            checkItem.check = []
+                        })
+                    })
+                }
+            }
+        }
+
+        await Promise.all(books.map(book => book.save()))
+
+        res.status(200).json({ message: 'Reset successful', returnedData })
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred', errorMessage: error.message });
+        res.status(500).json({ error: 'An error occurred', errorMessage: error.message })
     }
 })
+
+
+
 
 export default router
