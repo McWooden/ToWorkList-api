@@ -2,6 +2,7 @@ import express from 'express'
 const router = express.Router()
 import { Book } from '../database/schema.js'
 import { supabase } from '../database/mongoose.js'
+import cloneDeep from 'lodash.clonedeep'
 
 // get source
 router.get('/list/:pageId/:listId', (req, res) => {
@@ -193,9 +194,12 @@ router.get('/checkTodo/:pageId/:listId/:nickname', (req, res) => {
 
 // add daily
 router.post('/daily/:pageId', (req, res) => {
+    const data = req.body
     Book.findOneAndUpdate(
         {'pages': { $elemMatch: { _id: req.params.pageId } }},
-        { $push: { 'pages.$[page].dailyList': {...req.body} }},
+        { 
+            $push: { 'pages.$[page].dailyList': {...data} },
+        },
         { new: true, arrayFilters: [{ 'page._id': req.params.pageId }] })
     .select('pages')
     .exec((err, doc) => {
@@ -260,6 +264,7 @@ router.put('/daily/reverse/:pageId/:taskId/:listId', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' })
     }
 })
+
 router.get('/daily/reset', async (req, res) => {
     try {
         const books = await Book.find({})
@@ -271,21 +276,33 @@ router.get('/daily/reset', async (req, res) => {
                 if (page.details.icon === 'faChartBar') {
                     const filteredDailyList = page.dailyList?.map(item => {
                         const hasCheckedItem = item.list.some(checkItem => checkItem.check.length > 0)
-
                         if (hasCheckedItem) {
-                            return {
+                            const parentSpace = page.history.id(item._id)
+                            
+                            // Create a deep copy of item.list
+                            const deepCopyList = cloneDeep(item.list)
+
+                            const pushItem = {
                                 date: new Date().toISOString(),
-                                list: item.list,
-                                detail: item.detail
+                                list: deepCopyList, // Use the deep copy
                             }
+                            console.log(pushItem.list[0].check)
+                            if (parentSpace) {
+                                parentSpace.push(pushItem)
+                            } else {
+                                page.history.push({
+                                    detail: item.detail,
+                                    parentId: item._id,
+                                    box: [pushItem]
+                                })
+                            }
+                            return pushItem
                         }
                     }).filter(Boolean)
 
-                    if (filteredDailyList.length > 0) {
-                        page.history.push(...filteredDailyList)
-                        returnedData.push(...filteredDailyList)
-                    }
+                    returnedData.push(...filteredDailyList)
 
+                    // Reset data
                     page.dailyList.forEach(item => {
                         item.list.forEach(checkItem => {
                             checkItem.check = []
@@ -305,5 +322,27 @@ router.get('/daily/reset', async (req, res) => {
 
 
 
+router.get('/resetAllHistory', async (req, res) => {
+    try {
+      // Find all books
+      const books = await Book.find()
+  
+      // Iterate through all books and reset the history field
+      for (const book of books) {
+        book.pages.forEach(page => {
+          page.history = []
+        })
+  
+        // Save each updated book
+        await book.save()
+      }
+  
+      res.json({ message: 'History reset for all books successfully' })
+    } catch (err) {
+      console.error(err)
+      res.status(500).json({ message: 'Internal server error' })
+    }
+  })
+  
 
 export default router

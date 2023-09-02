@@ -22,7 +22,7 @@ export const Book = mongoose.model('books', {
                 item_title: String,
                 desc: String,
                 color: String,
-                deadline: String
+                deadline: Number
             },
             dones: [String],
             notes: [{
@@ -72,7 +72,14 @@ export const Book = mongoose.model('books', {
             },
             default: []
         }],
-        history: [Object],
+        history: [{
+            detail: Object,
+            parentId: mongoose.Schema.Types.ObjectId,
+            box: [{
+                date: {type: Date, default: Date.new},
+                list: [Object]
+            }]
+        }],
         order: {type: Number, default: 0},  
     }],
     roles: [{
