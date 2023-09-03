@@ -286,14 +286,13 @@ router.get('/daily/reset', async (req, res) => {
                                 date: new Date().toISOString(),
                                 list: deepCopyList, // Use the deep copy
                             }
-                            console.log(pushItem.list[0].check)
                             if (parentSpace) {
-                                parentSpace.push(pushItem)
+                                parentSpace.box.push(pushItem)
                             } else {
                                 page.history.push({
                                     detail: item.detail,
-                                    parentId: item._id,
-                                    box: [pushItem]
+                                    box: [pushItem],
+                                    _id: item._id,
                                 })
                             }
                             return pushItem
@@ -342,7 +341,7 @@ router.get('/resetAllHistory', async (req, res) => {
       console.error(err)
       res.status(500).json({ message: 'Internal server error' })
     }
-  })
-  
+})
 
+router.get('/:pageId/history')
 export default router

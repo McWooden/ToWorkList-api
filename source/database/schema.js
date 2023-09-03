@@ -74,11 +74,11 @@ export const Book = mongoose.model('books', {
         }],
         history: [{
             detail: Object,
-            parentId: mongoose.Schema.Types.ObjectId,
             box: [{
                 date: {type: Date, default: Date.new},
                 list: [Object]
-            }]
+            }],
+            _id: mongoose.Schema.Types.ObjectId,
         }],
         order: {type: Number, default: 0},  
     }],
