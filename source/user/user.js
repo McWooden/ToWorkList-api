@@ -105,7 +105,7 @@ router.put('/', async (req, res) => {
         return res.status(404).json({ error: 'User not found' })
       }
       let {password, ...rest} = updatedUser
-      return res.json({account: encrypt(rest)})
+      return res.json({account: encrypt(rest._doc)})
     } catch (error) {
       console.error(error)
       return res.status(500).json({ error: 'Server error' })
@@ -114,13 +114,13 @@ router.put('/', async (req, res) => {
 router.put('/label', async (req, res) => {
     const { label, _id } = req.body
     try {
-      const updatedUser = await User.findByIdAndUpdate(_id, { label }, { new: true })
+      const updatedUser = await User.findByIdAndUpdate(_id, { $set: {'label': label} }, { new: true })
   
       if (!updatedUser) {
         return res.status(404).json({ error: 'User not found' })
       }
       let {password, ...rest} = updatedUser
-      return res.json({account: encrypt(rest)})
+      return res.json({account: encrypt(rest._doc)})
     } catch (error) {
       console.error(error)
       return res.status(500).json({ error: 'Server error' })
@@ -135,7 +135,7 @@ router.put('/bio', async (req, res) => {
         return res.status(404).json({ error: 'User not found' })
       }
       let {password, ...rest} = updatedUser
-      return res.json({account: encrypt(rest)})
+      return res.json({account: encrypt(rest._doc)})
     } catch (error) {
       console.error(error)
       return res.status(500).json({ error: 'Server error' })
@@ -185,6 +185,45 @@ router.get('/summary/:userId', (req, res) => {
         }
         res.json({account: encrypt(filteredData)})
     })
+})
+
+router.post('/quick', async (req, res) => {
+    try {
+        const jwt = jwt_decode(req.body.user)
+        const email = await User.findOne({ email: jwt.email})
+        if (email) return res.status(404).send(`Email sudah pernah dipakai`)
+
+        const randomNumber = generate4DigitNumber()
+        let data = new User({
+            name: jwt.name,
+            nickname: jwt.given_name,
+            avatar: jwt.picture,
+            email: jwt.email,
+            password: '',
+            created_at: new Date().toLocaleDateString(),
+            panggilan: '',
+            tempat: '',
+            posisi: '',
+            kota: '',
+            negara: jwt.locale,
+            bio: '',
+            label: ['Pengguna baru'],
+            pengikut: [],
+            tag: randomNumber
+        })
+
+        data.save((err, user) => {
+            if (err) {
+                console.error(err)
+            } else {
+                let {password, ...rest} = user
+                res.json({account: encrypt(rest._doc), message: 'Akun berhasil dibuat'})
+            }
+        })
+        
+    } catch (err) {
+        res.status(404).send('Terjadi masalah saat membuat akun')
+    }    
 })
 
 export default router
