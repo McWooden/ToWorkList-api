@@ -199,7 +199,7 @@ router.post('/quick', async (req, res) => {
             nickname: jwt.given_name,
             avatar: jwt.picture,
             email: jwt.email,
-            password: '',
+            password: null,
             created_at: new Date().toLocaleDateString(),
             panggilan: '',
             tempat: '',

@@ -271,6 +271,10 @@ router.get('/daily/reset', async (req, res) => {
 
         let returnedData = []
 
+        const yesterday = new Date(currentDate)
+        yesterday.setDate(currentDate.getDate() - 1)
+        const isoString = yesterday.toISOString()
+
         for (const book of books) {
             for (const page of book.pages) {
                 if (page.details.icon === 'faChartBar') {
@@ -283,7 +287,7 @@ router.get('/daily/reset', async (req, res) => {
                             const deepCopyList = cloneDeep(item.list)
 
                             const pushItem = {
-                                date: new Date().toISOString(),
+                                date: isoString,
                                 list: deepCopyList, // Use the deep copy
                             }
                             if (parentSpace) {
