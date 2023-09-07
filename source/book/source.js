@@ -271,9 +271,17 @@ router.get('/daily/reset', async (req, res) => {
 
         let returnedData = []
 
-        const yesterday = new Date(currentDate)
-        yesterday.setDate(currentDate.getDate() - 1)
-        const isoString = yesterday.toISOString()
+// Buat objek Date untuk tanggal dan waktu saat ini
+var tanggalHariIni = new Date();
+
+// Kurangi satu hari dari tanggal saat ini
+tanggalHariIni.setDate(tanggalHariIni.getDate() - 1);
+
+// Atur jam, menit, detik, dan milidetik menjadi 00:00:00.000
+tanggalHariIni.setHours(0, 0, 0, 0);
+
+console.log(tanggalHariIni);
+
 
         for (const book of books) {
             for (const page of book.pages) {
