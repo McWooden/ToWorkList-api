@@ -114,11 +114,11 @@ export const User = mongoose.model('users', {
     last_changes: {
         nickname_change_date: {
             type: Date,
-            default: Date.new
+            default: null
         },
         password_change_date: {
             type: Date,
-            default: Date.new
+            default: null
         },
     },
     pengikut: [mongoose.Schema.Types.ObjectId]

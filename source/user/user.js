@@ -95,11 +95,70 @@ router.post('/pemulihan', (req, res) => {
         }
     )
 })
+router.post('/change_password', async (req, res) => {
+    try {
+        const { _id, oldPassword, newPassword } = req.body;
+
+        const user = await User.findOne({_id});
+
+        if (!user) return res.send('Akun tidak ditemukan');
+
+        const isPasswordMatch = user.password === oldPassword || user.password === null
+
+        if (!isPasswordMatch) return res.send('Password lama tidak cocok');
+
+        // Mengganti password dengan yang baru
+        user.password = newPassword
+        user.last_changes.password_change_date = new Date().toISOString()
+        const updatedUser = await user.save()
+        const {password, ...rest} = updatedUser
+
+        // Mengembalikan respons sukses
+        res.json({ account: encrypt(rest._doc) })
+    } catch (error) {
+        console.error(error)
+        res.status(500).send('Terjadi kesalahan saat mengganti password')
+    }
+})
+
+router.delete('/delete_password/:id', async (req, res) => {
+    try {
+      const { id } = req.params
+  
+      // Cari pengguna berdasarkan ID
+      const user = await User.findByIdAndUpdate(
+        id,
+        { $set: { password: null, 'last_changes.password_change_date': new Date().toISOString() } }
+      )
+  
+      if (!user) return res.status(404).json({ message: 'Pengguna tidak ditemukan' })
+  
+      res.json({ message: 'Password berhasil dihapus', user })
+    } catch (error) {
+      console.error(error)
+      res.status(500).send('Terjadi kesalahan saat menghapus password')
+    }
+}); 
 
 router.put('/', async (req, res) => {
-    const { nickname, panggilan, tempat, posisi, kota, negara, bio, _id } = req.body
+    const { panggilan, tempat, posisi, kota, negara, bio, _id } = req.body
     try {
-      const updatedUser = await User.findByIdAndUpdate(_id, { nickname, panggilan, tempat, posisi, kota, negara, bio }, { new: true })
+      const updatedUser = await User.findByIdAndUpdate(_id, { panggilan, tempat, posisi, kota, negara, bio }, { new: true })
+  
+      if (!updatedUser) {
+        return res.status(404).json({ error: 'User not found' })
+      }
+      let {password, ...rest} = updatedUser
+      return res.json({account: encrypt(rest._doc)})
+    } catch (error) {
+      console.error(error)
+      return res.status(500).json({ error: 'Server error' })
+    }
+})
+router.put('/nickname', async (req, res) => {
+    const { nickname, _id } = req.body
+    try {
+      const updatedUser = await User.findByIdAndUpdate(_id, { nickname, 'last_changes.nickname_change_date': new Date().toISOString() }, { new: true })
   
       if (!updatedUser) {
         return res.status(404).json({ error: 'User not found' })
@@ -225,5 +284,21 @@ router.post('/quick', async (req, res) => {
         res.status(404).send('Terjadi masalah saat membuat akun')
     }    
 })
+
+// Endpoint untuk memperbarui semua dokumen dengan properti baru
+router.get('/updateDocuments', async (req, res) => {
+  try {
+    // Lakukan pembaruan dokumen sesuai dengan perubahan skema
+    await User.updateMany({}, { $set: { last_changes: {
+        nickname_change_date: null,
+        password_change_date: null,
+    }, } });
+
+    res.status(200).json({ message: 'Dokumen berhasil diperbarui' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Terjadi kesalahan saat memperbarui dokumen' });
+  }
+});
 
 export default router
