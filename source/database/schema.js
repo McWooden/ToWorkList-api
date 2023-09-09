@@ -111,6 +111,16 @@ export const User = mongoose.model('users', {
     tag: String,
     bio: String,
     label: [String],
+    last_changes: {
+        nickname_change_date: {
+            type: Date,
+            default: Date.new
+        },
+        password_change_date: {
+            type: Date,
+            default: Date.new
+        },
+    },
     pengikut: [mongoose.Schema.Types.ObjectId]
 })
 const mailSchema = new mongoose.Schema({
