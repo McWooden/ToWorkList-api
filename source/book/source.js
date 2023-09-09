@@ -271,18 +271,6 @@ router.get('/daily/reset', async (req, res) => {
 
         let returnedData = []
 
-// Buat objek Date untuk tanggal dan waktu saat ini
-var tanggalHariIni = new Date();
-
-// Kurangi satu hari dari tanggal saat ini
-tanggalHariIni.setDate(tanggalHariIni.getDate() - 1);
-
-// Atur jam, menit, detik, dan milidetik menjadi 00:00:00.000
-tanggalHariIni.setHours(0, 0, 0, 0);
-
-console.log(tanggalHariIni);
-
-
         for (const book of books) {
             for (const page of book.pages) {
                 if (page.details.icon === 'faChartBar') {
@@ -295,7 +283,7 @@ console.log(tanggalHariIni);
                             const deepCopyList = cloneDeep(item.list)
 
                             const pushItem = {
-                                date: isoString,
+                                date: item.currentDate,
                                 list: deepCopyList, // Use the deep copy
                             }
                             if (parentSpace) {
@@ -307,6 +295,7 @@ console.log(tanggalHariIni);
                                     _id: item._id,
                                 })
                             }
+                            item.currentDate = new Date().toISOString()
                             return pushItem
                         }
                     }).filter(Boolean)
