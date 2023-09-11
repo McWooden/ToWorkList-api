@@ -13,6 +13,16 @@ router.get('/all', async (req, res) => {
     }
 })
 
+router.get('/reset', async (req, res) => {
+    try {
+        await DailyTask.updateMany({}, { $set: { 'list.$[].check': [], currentDate: new Date().toISOString() } })
+
+        res.status(200).json({ message: 'Reset successful' })
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred' })
+    }
+})
+
 router.get('/:userId', async (req, res) => {
     try {
         await DailyTask.find({'followers._id': req.params.userId}, (err, result) => {
@@ -90,16 +100,6 @@ router.post('/follow/:dailyTaskId', (req, res) => {
             res.json({message: 'Anda sudah terdaftar, silahkan segarkan tugas sekarang!'})
         })
     })
-})
-
-router.get('/reset', async (req, res) => {
-    try {
-        await DailyTask.updateMany({}, { $set: { 'list.$[].check': [], currentDate: new Date().toISOString() } })
-
-        res.status(200).json({ message: 'Reset successful' })
-    } catch (error) {
-        res.status(500).json({ error: 'An error occurred' })
-    }
 })
 
 router.post('/create', async (req, res) => {
