@@ -282,8 +282,11 @@ router.get('/daily/reset', async (req, res) => {
                             // Create a deep copy of item.list
                             const deepCopyList = cloneDeep(item.list)
 
+                            const yesterday = new Date()
+                            yesterday.setDate(new Date().getDate() - 1)
+                            yesterday.setHours(0,0,0,0)
                             const pushItem = {
-                                date: new Date().setDate(new Date().getDate() - 1),
+                                date: yesterday,
                                 list: deepCopyList, // Use the deep copy
                             }
                             if (parentSpace) {
