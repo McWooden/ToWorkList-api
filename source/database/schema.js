@@ -85,6 +85,7 @@ export const Book = mongoose.model('books', {
     roles: [{
         name: String,
         color: String,
+        access: [String]
     }],
     users: [{
         nickname: String,
@@ -102,7 +103,7 @@ export const User = mongoose.model('users', {
     avatar: String,
     email: String,
     password: String,
-    created_at: String,
+    created_at: {type: Date, default: Date.now},
     panggilan: String,
     tempat: String,
     posisi: String,

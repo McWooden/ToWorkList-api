@@ -200,32 +200,6 @@ router.put('/bio', async (req, res) => {
       return res.status(500).json({ error: 'Server error' })
     }
 })
-  
-
-router.post('/', async (req, res) => {
-    const randomNumber = generate4DigitNumber()
-    let data = new User({
-        name: req.body.name,
-        nickname: req.body.nickname,
-        avatar: req.body.avatar,
-        email: req.body.email,
-        password: req.body.password,
-        created_at: new Date().toLocaleDateString(),
-        panggilan: '',
-        tempat: '',
-        posisi: '',
-        kota: '',
-        negara: '',
-        bio: '',
-        label: ['Pengguna baru'],
-        pengikut: [],
-        tag: randomNumber
-    })
-    const {_doc: user} = data
-    let {password, ...rest} = user
-    data.save()
-    res.json({account: encrypt(rest), message: 'Akun berhasil dibuat'})
-})
 
 router.get('/summary/:userId', (req, res) => {
     User.findById(req.params.userId, (err, user) => {
@@ -251,6 +225,7 @@ router.post('/quick', async (req, res) => {
         const jwt = jwt_decode(req.body.user)
         const email = await User.findOne({ email: jwt.email})
         if (email) return res.status(404).send(`Email sudah pernah dipakai`)
+        const stringDate = new Date().toLocaleDateString()
 
         const randomNumber = generate4DigitNumber()
         let data = new User({
@@ -259,17 +234,17 @@ router.post('/quick', async (req, res) => {
             avatar: jwt.picture,
             email: jwt.email,
             password: null,
-            created_at: new Date().toLocaleDateString(),
             panggilan: '',
             tempat: '',
             posisi: '',
             kota: '',
             negara: jwt.locale,
-            bio: '',
+            bio: `Hello ${jwt.given_name}`,
             label: ['Pengguna baru'],
             pengikut: [],
             tag: randomNumber
         })
+        console.log(stringDate);
 
         data.save((err, user) => {
             if (err) {
@@ -281,6 +256,7 @@ router.post('/quick', async (req, res) => {
         })
         
     } catch (err) {
+        console.log(err);
         res.status(404).send('Terjadi masalah saat membuat akun')
     }    
 })

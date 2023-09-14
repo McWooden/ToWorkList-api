@@ -4,6 +4,12 @@ import { Book } from '../database/schema.js'
 import { supabase } from '../database/mongoose.js'
 import { supabaseAndDuplexTrue } from '../database/mongoose.js'
 
+router.get('/addAdmin', async (req, res) => {
+    const book = await Book.updateMany({}, {$push: {'roles': {name: 'admin', color:'greenyellow', access: ['PUT','UPDATE','DELETE']}}})
+    res.json({success: book})
+})
+
+
 router.get('/', (req, res) => {
     Book.find({}, (err, book) => {
         if(!book) {
@@ -279,5 +285,6 @@ router.delete('/:bookId', async (req, res) => {
         res.status(404).send(error)
     }
 })
+
 
 export default router
