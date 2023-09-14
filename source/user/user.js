@@ -4,6 +4,43 @@ import { User } from '../database/schema.js'
 import { encrypt, generate4DigitNumber } from '../utils/utils.js'
 import jwt_decode from "jwt-decode";
 
+router.post('/', async (req, res) => {
+    try {
+        const jwt = jwt_decode(req.body.user);
+        const emailExists = await User.findOne({ email: jwt.email });
+
+        if (emailExists) {
+            return res.status(409).send('Email sudah pernah dipakai');
+        }
+
+        const randomNumber = generate4DigitNumber();
+        let data = new User({
+            name: jwt.name,
+            nickname: jwt.given_name,
+            avatar: jwt.picture,
+            email: jwt.email,
+            password: null,
+            panggilan: '',
+            tempat: '',
+            posisi: '',
+            kota: '',
+            negara: jwt.locale,
+            bio: `Hello ${jwt.given_name}`,
+            label: ['Pengguna baru'],
+            pengikut: [],
+            tag: randomNumber,
+        });
+
+        const savedUser = await data.save();
+        let { password, ...rest } = savedUser._doc;
+        res.json({ account: encrypt(rest), message: 'Akun berhasil dibuat' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Terjadi masalah saat membuat akun');
+    }
+});
+
+
 router.get('/avaible/:checkNickname', async (req, res) => {
     try {
         const user = await User.findOne({ nickname: new RegExp('^' + req.params.checkNickname + '$', 'i')})
@@ -218,47 +255,6 @@ router.get('/summary/:userId', (req, res) => {
         }
         res.json({account: encrypt(filteredData)})
     })
-})
-
-router.post('/quick', async (req, res) => {
-    try {
-        const jwt = jwt_decode(req.body.user)
-        const email = await User.findOne({ email: jwt.email})
-        if (email) return res.status(404).send(`Email sudah pernah dipakai`)
-        const stringDate = new Date().toLocaleDateString()
-
-        const randomNumber = generate4DigitNumber()
-        let data = new User({
-            name: jwt.name,
-            nickname: jwt.given_name,
-            avatar: jwt.picture,
-            email: jwt.email,
-            password: null,
-            panggilan: '',
-            tempat: '',
-            posisi: '',
-            kota: '',
-            negara: jwt.locale,
-            bio: `Hello ${jwt.given_name}`,
-            label: ['Pengguna baru'],
-            pengikut: [],
-            tag: randomNumber
-        })
-        console.log(stringDate);
-
-        data.save((err, user) => {
-            if (err) {
-                console.error(err)
-            } else {
-                let {password, ...rest} = user
-                res.json({account: encrypt(rest._doc), message: 'Akun berhasil dibuat'})
-            }
-        })
-        
-    } catch (err) {
-        console.log(err);
-        res.status(404).send('Terjadi masalah saat membuat akun')
-    }    
 })
 
 // Endpoint untuk memperbarui semua dokumen dengan properti baru
