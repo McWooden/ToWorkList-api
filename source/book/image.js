@@ -10,12 +10,10 @@ import { Book } from '../database/schema.js'
 router.post('/addBook', upload.single('image'), async (req, res) => {
     try {
         const dataClient = JSON.parse(req.body.data)
-        const currentDate = +new Date()
         let book = new Book({
             profile: {
                 book_title: dataClient.book_title,
                 avatar_url: '',
-                created_at: currentDate,
                 author: dataClient.author,
             },
             pages: [{

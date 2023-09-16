@@ -3,7 +3,7 @@ export const Book = mongoose.model('books', {
     profile: {
         book_title: String,
         avatar_url: String,
-        create_at: String,
+        created_at: {type: Date, default: Date.now},
         desc: String,
         author: {
             nickname: String,
@@ -17,6 +17,7 @@ export const Book = mongoose.model('books', {
             icon: String,
             jadwal_url: String,
         },
+        access: {type: [String], default: []},
         list: [{
             details: {
                 item_title: String,
@@ -85,15 +86,15 @@ export const Book = mongoose.model('books', {
     roles: [{
         name: String,
         color: String,
-        access: [String]
     }],
     users: [{
         nickname: String,
+        isAdmin: {type: Boolean, default: false},
         tag: String, 
         avatar: String, 
         status: String,
         role: [String],
-        joined_at: String,
+        joined_at: {type: Date, default: Date.now},
         _id: mongoose.Schema.Types.ObjectId
     }],
 })

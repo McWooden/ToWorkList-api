@@ -4,12 +4,6 @@ import { Book } from '../database/schema.js'
 import { supabase } from '../database/mongoose.js'
 import { supabaseAndDuplexTrue } from '../database/mongoose.js'
 
-router.get('/addAdmin', async (req, res) => {
-    const book = await Book.updateMany({}, {$push: {'roles': {name: 'admin', color:'greenyellow', access: ['PUT','UPDATE','DELETE']}}})
-    res.json({success: book})
-})
-
-
 router.get('/', (req, res) => {
     Book.find({}, (err, book) => {
         if(!book) {
@@ -20,25 +14,39 @@ router.get('/', (req, res) => {
     })
 })
 router.get('/:userId', (req, res) => {
-    Book.find({'users._id':  req.params.userId}, (err, book) => {
-        if(!book) {
+    Book.find({ 'users._id': req.params.userId }, (err, book) => {
+        if (err) {
             return res.status(500).send(err)
         }
-        const filteredData = book.map(data => ({profile: data.profile, _id: data._id}))
+
+        const filteredData = book.map(data => {
+            let isAdmin = false
+
+            if (data.profile.author?._id === req.params.userId) {
+                isAdmin = true
+            } else {
+                const user = data.users.find(user => user?._id === req.params.userId)
+                if (user && user.isAdmin) {
+                    isAdmin = true
+                }
+            }
+
+            return { profile: data.profile, _id: data._id, isAdmin }
+        })
+
         res.send(filteredData)
     })
 })
+
 router.get('/:bookId/get/users', (req, res) => {
     Book.findById(req.params.bookId, (err, book) => {
         if(err) {
             return res.status(500).send(err)
         }
-        const filteredData = {
-            _id: book._id,
+        res.json({
             roles: book.roles,
             users: book.users
-        }
-        res.json(filteredData)
+        })
     })
 })
 
@@ -68,7 +76,6 @@ router.post('/join/:bookId', (req, res) => {
                 avatar: newUser.avatar,
                 status: '-',
                 role: [],
-                joined_at: +new Date()
             }
         }
     }
@@ -239,29 +246,13 @@ router.delete('/:bookId/page/:pageId', async (req, res) => {
         res.status(404).json({ success: false, error: err })
     })
 })
-router.get('/addRoles', (req, res) => {
-    const options = {new: true}
-    const update = {
-        $push: {'users': {
-            nickname: 'Huddin', 
-            tag: '2521', 
-            avatar: 'https://source.APIsh.com/random/Huddin', 
-            status: 'programming',
-            role: [],
-            joined_at: +new Date()
-        }}
-    }
-    Book.findOneAndUpdate({}, update, options, (err, book) => {
-        res.json(+new Date())
-    })
-})
 
 // delete book
 router.delete('/:bookId', async (req, res) => {
     try {
-        Book.findOne({_id: req.params.bookId, 'profile.author.nickname': req.body.profile.author.nickname, 'profile.author.tag': req.body.profile.author.tag}, async (err, book) => {
+        Book.findOne({_id: req.params.bookId, 'profile.author._id': req.body.profile.author._id}, async (err, book) => {
             try {
-                if (book.profile.author.nickname !== req.body.userClientProfile.nickname || book.profile.author.tag !== req.body.userClientProfile.tag) return res.status(500).send('Bukan milik anda!')
+                if (book.profile.author._id.toString() !== req.body.userClientProfile._id) return res.status(500).send('Bukan milik anda!')
                 const picArray = book.pages.reduce((accumulator, page) => {
                     page.list.forEach((item) => {
                             item.images.forEach((image) => {
@@ -283,6 +274,24 @@ router.delete('/:bookId', async (req, res) => {
         })
     } catch (error) {
         res.status(404).send(error)
+    }
+})
+
+router.get('/reverseAdmin/:bookId/:userId', async (req, res) => {
+    try {
+        const book = await Book.findById(req.params.bookId)
+        if (!book) return res.status(404).json({ error: 'Book not found' })
+
+        const user = book.users.id(req.params.userId)
+        if (!user) return res.status(404).json({ error: 'Member not found' })
+
+        user.isAdmin = !user.isAdmin
+
+        await book.save()
+        res.json({ users: book.users })
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ error: 'Internal server error' })
     }
 })
 
