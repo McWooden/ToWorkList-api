@@ -22,7 +22,7 @@ router.post('/:pageId', (req, res) => {
     const update = {
         $push: {
             'pages.$[page].noteList': {
-                context: req.body.context,
+                context: req.body.context || req.body.desc,
                 by: req.body.by,
                 color: req.body.color,
                 order: 999,
@@ -34,10 +34,12 @@ router.post('/:pageId', (req, res) => {
         arrayFilters: [{ 'page._id': req.params.pageId }]
     }
     Book.findOneAndUpdate(query, update, options)
-    .then(res => {
-        if (res) return res.status(404).json({ success: false, error: 'Page or List not found' })
-        res.json(res.pages.id(req.params.pageId))
+    .then(result => {
+        console.log('There is');
+        if (!result) return res.status(404).json({ success: false, error: 'Page or List not found' })
+        res.json(result.pages.id(req.params.pageId))
     }).catch(err => {
+        console.log(err);
         res.status(404).json({ success: false, error: err })
     })
 })
