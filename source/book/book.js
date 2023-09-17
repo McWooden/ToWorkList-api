@@ -4,6 +4,92 @@ import { Book } from '../database/schema.js'
 import { supabase } from '../database/mongoose.js'
 import { supabaseAndDuplexTrue } from '../database/mongoose.js'
 
+// router.get('/migrate-images-date', async (req, res) => {
+//     try {
+//         const documents = await Book.find({}); // Retrieve all documents
+
+//         for (const doc of documents) {
+//             for (const page of doc.pages) {
+//                 for (const list of page.list) {
+//                     for (const image of list.images) {
+//                         try {
+//                             console.log("Original Date String:", image.date);
+//                             image.date = new Date(image.date);
+//                             console.log("Parsed Date Object:", image.date);
+//                         } catch (error) {
+//                             console.error("Error parsing date:", error);
+//                             image.date = new Date();
+//                         }
+//                         console.log("Final Date Value:", image.date);
+//                     }
+//                     for (const note of list.notes) {
+//                         try {
+//                             console.log("Original Date String:", note.date);
+//                             note.date = new Date(note.date);
+//                             console.log("Parsed Date Object:", note.date);
+//                         } catch (error) {
+//                             console.error("Error parsing date:", error);
+//                             note.date = new Date();
+//                         }
+//                         console.log("Final Date Value:", note.date);
+//                     }
+//                     // ... Repeat similar logging for note.date
+//                 }
+//             }
+//             await doc.save(); // Save the updated document
+//         }
+        
+
+//         res.send('Migration complete');
+//     } catch (error) {
+//         res.status(500).send(`Error during migration: ${error}`);
+//     }
+// });
+
+    
+// router.get('/updateImagesAndNotesForAll', async (req, res) => {
+//     try {
+//       const books = await Book.find();
+  
+//       if (!books) {
+//         return res.status(404).json({ message: 'No books found' });
+//       }
+  
+//       // Loop through each book
+//       books.forEach(async (book) => {
+//         if (book.pages && book.pages.length > 0) {
+//           // Loop through each page in the book
+//           book.pages.forEach((page) => {
+//             if (page.list) {
+//               // Update images and notes arrays in each page
+//               if (page.list.images) {
+//                 page.list.images = page.list.images.map((item) => ({
+//                   ...item,
+//                   by: { nickname: item.by, _id: null },
+//                 }));
+//               }
+  
+//               if (page.list.notes) {
+//                 page.list.notes = page.list.notes.map((item) => ({
+//                   ...item,
+//                   by: { nickname: item.by, _id: null },
+//                 }));
+//               }
+//             }
+//           });
+  
+//           // Save the updated book
+//           await book.save();
+//         }
+//       });
+  
+//       return res.status(200).json({ message: 'Images and notes updated for all books' });
+//     } catch (error) {
+//       console.error(error);
+//       return res.status(500).json({ message: 'Internal Server Error' });
+//     }
+//   });
+
 router.get('/', (req, res) => {
     Book.find({}, (err, book) => {
         if(!book) {

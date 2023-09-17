@@ -28,23 +28,30 @@ export const Book = mongoose.model('books', {
             dones: [String],
             notes: [{
                 context: String,
-                by: String,
-                date: String,
+                by: {
+                    nickname: String,
+                    _id: mongoose.Schema.Types.ObjectId,
+                },
+                date: {type: Date,default: Date.now},
                 color: String,
                 order: {type: Number, default: 0}
             }],
             images: [{
                 pic: String,
                 desc: String,
-                date: String,
-                by: String,
+                date: {type: Date,default: Date.now},
+                by: {
+                    nickname: String,
+                    _id: mongoose.Schema.Types.ObjectId,
+                },
                 order: {type: Number, default: 0}
             }],
             chat: [{
                 nickname: String,
+                by: mongoose.Schema.Types.ObjectId,
                 msg: String,
                 time: String,
-                date: String
+                date: {type: Date,default: Date.now},
             }],
             order: {type: Number, default: 0},
             default: []
@@ -72,6 +79,16 @@ export const Book = mongoose.model('books', {
                 default: Date.now
             },
             default: []
+        }],
+        noteList: [{
+            context: String,
+            by: {
+                nickname: String,
+                _id: mongoose.Schema.Types.ObjectId,
+            },
+            date: {type: Date, default: Date.now},
+            color: String,
+            order: {type: Number, default: 0}
         }],
         history: [{
             detail: Object,

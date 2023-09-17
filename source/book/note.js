@@ -1,17 +1,29 @@
-import express from 'express'
+import express, { query } from 'express'
 const router = express.Router()
+import mongoose from "mongoose"
 import { Book } from '../database/schema.js'
 
-router.post('/:pageId/:listId', (req, res) => {
+const note = {noteList: [{
+    context: String,
+    by: {
+        nickname: String,
+        _id: mongoose.Schema.Types.ObjectId,
+    },
+    date: {type: Date, default: Date.now},
+    color: String,
+    order: {type: Number, default: 0}
+}]}
+
+
+router.post('/:pageId', (req, res) => {
     const query = {
-        'pages': {$elemMatch: { _id: req.params.pageId, 'list': {$elemMatch: { _id: req.params.listId }}}}
+        'pages': { $elemMatch: { _id: req.params.pageId } }
     }
     const update = {
         $push: {
-            'pages.$[page].list.$[list].notes': {
-                context: req.body.context || req.body.desc,
+            'pages.$[page].noteList': {
+                context: req.body.context,
                 by: req.body.by,
-                date: +new Date(),
                 color: req.body.color,
                 order: 999,
             }
@@ -19,76 +31,58 @@ router.post('/:pageId/:listId', (req, res) => {
     }
     const options = { 
         new: true,
-        arrayFilters: [{ 'page._id': req.params.pageId }, { 'list._id': req.params.listId }]
+        arrayFilters: [{ 'page._id': req.params.pageId }]
     }
     Book.findOneAndUpdate(query, update, options)
-    .then(result => {
-        if (result) {
-            const page = result.pages.find(obj => obj._id.toString() === req.params.pageId)
-            const list = page.list.find(obj => obj._id.toString() === req.params.listId)
-            res.json(list)
-        } else {
-            res.status(404).json({ success: false, error: 'Page or List not found' })
-        }
+    .then(res => {
+        if (res) return res.status(404).json({ success: false, error: 'Page or List not found' })
+        res.json(res.pages.id(req.params.pageId))
     }).catch(err => {
-        console.log(err)
         res.status(404).json({ success: false, error: err })
     })
 })
 
-router.put('/:pageId/:listId/:noteId', (req, res) => {
+router.put('/:pageId/:noteId', (req, res) => {
     const query = {
         'pages': {$elemMatch: { _id: req.params.pageId, 'list': {$elemMatch: { _id: req.params.listId, 'notes': {$elemMatch: {_id: req.params.noteId}}}}}}
     }
     const update = {
         $set: {
-            'pages.$[page].list.$[list].notes.$[note].context': req.body.context,
-            'pages.$[page].list.$[list].notes.$[note].date': +new Date(),
+            'pages.$[page].noteList.$[note].context': req.body.context,
+            'pages.$[page].noteList.$[note].date': +new Date(),
         }
     }
     const options = { 
         new: true,
-        arrayFilters: [{ 'page._id': req.params.pageId }, { 'list._id': req.params.listId }, { 'note._id': req.params.noteId }]
+        arrayFilters: [{ 'page._id': req.params.pageId }, { 'note._id': req.params.noteId }]
     }
     Book.findOneAndUpdate(query, update, options)
     .then(result => {
-        if (result) {
-            const page = result.pages.find(obj => obj._id.toString() === req.params.pageId)
-            const list = page.list.find(obj => obj._id.toString() === req.params.listId)
-            res.json(list)
-        } else {
-            res.status(404).json({ success: false, error: 'Page or List not found' })
-        }
+        if (!result) res.status(404).json({ success: false, error: 'Page or List not found' })
+            res.json(result.pages.id(req.params.pageId))
     }).catch(err => {
-        console.log(err)
         res.status(404).json({ success: false, error: err })
     })
 })
 
 router.delete('/:pageId/:listId/:noteId', (req, res) => {
     const query = {
-        'pages': {$elemMatch: { _id: req.params.pageId, 'list': {$elemMatch: { _id: req.params.listId, 'notes': {$elemMatch: {_id: req.params.noteId}}}}}}
+        'pages': {$elemMatch: { _id: req.params.pageId }}
     }
     const update = {
         $pull: {
-            'pages.$[page].list.$[list].notes': {_id: req.params.noteId}
+            'pages.$[page].notelist.$[notes].notes': { _id: req.params.noteId }
         }
     }
     const options = { 
         new: true,
-        arrayFilters: [{ 'page._id': req.params.pageId }, { 'list._id': req.params.listId }]
+        arrayFilters: [{ 'page._id': req.params.pageId }, { 'notes._id': req.params.listId }]
     }
     Book.findOneAndUpdate(query, update, options)
     .then(result => {
-        if (result) {
-            const page = result.pages.find(obj => obj._id.toString() === req.params.pageId)
-            const list = page.list.find(obj => obj._id.toString() === req.params.listId)
-            res.json(list)
-        } else {
-            res.status(404).json({ success: false, error: 'Page or List not found' })
-        }
+        if (!result) res.status(404).json({ success: false, error: 'Page or List not found' })
+            res.json(result.pages.id(req.params.pageId))
     }).catch(err => {
-        console.log(err)
         res.status(404).json({ success: false, error: err })
     })
 })

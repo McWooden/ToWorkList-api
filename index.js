@@ -25,8 +25,9 @@ app.use((req, res, next) => {
 import book from './source/book/book.js'
 import user from './source/user/user.js'
 import source from './source/book/source.js'
-import chat from './source/book/chat.js'
-import notes from './source/book/note.js'
+import chat from './source/book/todo-chat.js'
+import todoNotes from './source/book/todo-note.js'
+import note from './source/book/note.js'
 import image from './source/book/image.js'
 import search from './source/other/search.js'
 import mail from './source/mail/mail.js'
@@ -40,7 +41,8 @@ app.get('/', (req, res) => {
 app.use('/book', book)
 app.use('/user', user)
 app.use('/source', source)
-app.use('/notes', notes)
+app.use('/notes', note)
+app.use('/todo-notes', todoNotes)
 app.use('/chat', chat)
 app.use('/image', image)
 app.use('/search', search)

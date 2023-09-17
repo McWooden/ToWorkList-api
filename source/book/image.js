@@ -27,27 +27,24 @@ router.post('/addBook', upload.single('image'), async (req, res) => {
                         item_title: 'Daftar pertama',
                         desc: 'ini adalah daftar pertamamu',
                         color: 'yellowgreen',
-                        deadline: currentDate
+                        deadline: +new Date()
                     },
                     dones: [],
                     notes: [{
                         context: 'catatan tentang list berada disini',
-                        by: dataClient.author.nickname,
-                        date: currentDate,
+                        by: {nickname: dataClient.author.nickname, _id: dataClient.author._id},
                         color: 'royalblue',
                         order: 999
                     }],
                     images: [{
                         pic: 'hello',
                         desc: 'gambar disimpan disini',
-                        date: currentDate,
-                        by: dataClient.author.nickname,
+                        by: {nickname: dataClient.author.nickname, _id: dataClient.author._id},
                         order: 999
                     }],
                     chat: [{
                         nickname: 'Tutorial',
                         msg: 'kamu bisa membahas list disini',
-                        date: currentDate
                     }],
                     order: 999
                 }]
@@ -211,7 +208,6 @@ router.post('/:bookId/:pageId/:listId', upload.single('image'), async (req, res)
             'pages.$[page].list.$[list].images': {
                 pic: data.path,
                 desc: req.body.desc,
-                date: +new Date(),
                 by: req.body.nickname
             }
         }
