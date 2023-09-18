@@ -46,7 +46,7 @@ router.post('/:pageId', (req, res) => {
 
 router.put('/:pageId/:noteId', (req, res) => {
     const query = {
-        'pages': {$elemMatch: { _id: req.params.pageId, 'list': {$elemMatch: { _id: req.params.listId, 'notes': {$elemMatch: {_id: req.params.noteId}}}}}}
+        'pages': {$elemMatch: { _id: req.params.pageId }}
     }
     const update = {
         $set: {
@@ -73,12 +73,12 @@ router.delete('/:pageId/:listId/:noteId', (req, res) => {
     }
     const update = {
         $pull: {
-            'pages.$[page].notelist.$[notes].notes': { _id: req.params.noteId }
+            'pages.$[page].notelist': { _id: req.params.noteId }
         }
     }
     const options = { 
         new: true,
-        arrayFilters: [{ 'page._id': req.params.pageId }, { 'notes._id': req.params.listId }]
+        arrayFilters: [{ 'page._id': req.params.pageId }]
     }
     Book.findOneAndUpdate(query, update, options)
     .then(result => {
