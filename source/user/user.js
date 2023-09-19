@@ -71,14 +71,15 @@ router.put('/login/google', async (req, res) => {
     const credential = jwt_decode(req.body.credential)
     if (credential.email_verified) {
         try {
-            const {_doc: user} = await User.findOne({ email: credential.email})
+            const user = await User.findOne({ email: credential.email})
             if (user) {
                 if (user.avatar !== credential.picture) {
                     user.avatar = credential.picture
                     await user.save()
                 }
-                const {__v, password, ...account} = user
-                res.json({account: encrypt(account)})
+                const data = {...user._doc}
+                delete data.password
+                res.json({account: encrypt(data)})
             } else {
                 res.send(`Akun anda tidak ditemukan`)
             }
