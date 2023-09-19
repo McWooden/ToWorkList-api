@@ -67,13 +67,13 @@ router.put('/:pageId/:noteId', (req, res) => {
     })
 })
 
-router.delete('/:pageId/:listId/:noteId', (req, res) => {
+router.delete('/:pageId/:noteId', (req, res) => {
     const query = {
         'pages': {$elemMatch: { _id: req.params.pageId }}
     }
     const update = {
         $pull: {
-            'pages.$[page].notelist': { _id: req.params.noteId }
+            'pages.$[page].noteList': {_id: req.params.noteId}
         }
     }
     const options = { 
@@ -83,6 +83,7 @@ router.delete('/:pageId/:listId/:noteId', (req, res) => {
     Book.findOneAndUpdate(query, update, options)
     .then(result => {
         if (!result) res.status(404).json({ success: false, error: 'Page or List not found' })
+            console.log(result.pages.id(req.params.pageId).noteList.id(req.params.noteId), req.params.pageId, req.params.noteId);
             res.json(result.pages.id(req.params.pageId))
     }).catch(err => {
         res.status(404).json({ success: false, error: err })

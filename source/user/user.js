@@ -2,18 +2,18 @@ import express from 'express'
 const router = express.Router()
 import { User } from '../database/schema.js'
 import { encrypt, generate4DigitNumber } from '../utils/utils.js'
-import jwt_decode from "jwt-decode";
+import jwt_decode from "jwt-decode"
 
 router.post('/', async (req, res) => {
     try {
-        const jwt = jwt_decode(req.body.user);
-        const emailExists = await User.findOne({ email: jwt.email });
+        const jwt = jwt_decode(req.body.user)
+        const emailExists = await User.findOne({ email: jwt.email })
 
         if (emailExists) {
-            return res.status(409).send('Email sudah pernah dipakai');
+            return res.status(409).send('Email sudah pernah dipakai')
         }
 
-        const randomNumber = generate4DigitNumber();
+        const randomNumber = generate4DigitNumber()
         let data = new User({
             name: jwt.name,
             nickname: jwt.given_name,
@@ -29,16 +29,16 @@ router.post('/', async (req, res) => {
             label: ['Pengguna baru'],
             pengikut: [],
             tag: randomNumber,
-        });
+        })
 
-        const savedUser = await data.save();
-        let { password, ...rest } = savedUser._doc;
-        res.json({ account: encrypt(rest), message: 'Akun berhasil dibuat' });
+        const savedUser = await data.save()
+        let { password, ...rest } = savedUser._doc
+        res.json({ account: encrypt(rest), message: 'Akun berhasil dibuat' })
     } catch (err) {
-        console.error(err);
-        res.status(500).send('Terjadi masalah saat membuat akun');
+        console.error(err)
+        res.status(500).send('Terjadi masalah saat membuat akun')
     }
-});
+})
 
 
 router.get('/avaible/:checkNickname', async (req, res) => {
@@ -73,19 +73,24 @@ router.put('/login/google', async (req, res) => {
         try {
             const {_doc: user} = await User.findOne({ email: credential.email})
             if (user) {
+                if (user.avatar !== credential.picture) {
+                    user.avatar = credential.picture
+                    await user.save()
+                }
                 const {__v, password, ...account} = user
                 res.json({account: encrypt(account)})
             } else {
                 res.send(`Akun anda tidak ditemukan`)
             }
         } catch (err) {
-            console.log(err);
+            console.log(err)
             res.status(404).send('Akun tidak ditemukan')
         }
     } else {
         res.send('who are you?')
     }
 })
+
 router.put('/login/form', async (req, res) => {
     try {
         const {_doc: user} = await User.findOne({ password: req.body.password, nickname: new RegExp(`^${req.body.nickname}$`, 'i') })
@@ -134,15 +139,15 @@ router.post('/pemulihan', (req, res) => {
 })
 router.post('/change_password', async (req, res) => {
     try {
-        const { _id, oldPassword, newPassword } = req.body;
+        const { _id, oldPassword, newPassword } = req.body
 
-        const user = await User.findOne({_id});
+        const user = await User.findOne({_id})
 
-        if (!user) return res.send('Akun tidak ditemukan');
+        if (!user) return res.send('Akun tidak ditemukan')
 
         const isPasswordMatch = user.password === oldPassword || user.password === null
 
-        if (!isPasswordMatch) return res.send('Password lama tidak cocok');
+        if (!isPasswordMatch) return res.send('Password lama tidak cocok')
 
         // Mengganti password dengan yang baru
         user.password = newPassword
@@ -175,7 +180,7 @@ router.delete('/delete_password/:id', async (req, res) => {
       console.error(error)
       res.status(500).send('Terjadi kesalahan saat menghapus password')
     }
-}); 
+}) 
 
 router.put('/', async (req, res) => {
     const { panggilan, tempat, posisi, kota, negara, bio, _id } = req.body
@@ -264,13 +269,13 @@ router.get('/updateDocuments', async (req, res) => {
     await User.updateMany({}, { $set: { last_changes: {
         nickname_change_date: null,
         password_change_date: null,
-    }, } });
+    }, } })
 
-    res.status(200).json({ message: 'Dokumen berhasil diperbarui' });
+    res.status(200).json({ message: 'Dokumen berhasil diperbarui' })
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Terjadi kesalahan saat memperbarui dokumen' });
+    console.error(error)
+    res.status(500).json({ message: 'Terjadi kesalahan saat memperbarui dokumen' })
   }
-});
+})
 
 export default router

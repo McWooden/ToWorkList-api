@@ -20,27 +20,29 @@ router.get('/list/:pageId/:listId', (req, res) => {
 })
 
 // get page
-router.get('/page/:pageId', (req, res) => {
+router.get('/page/:pageId', async (req, res) => {
     try {
-        Book.findOne({'pages': { $elemMatch: { _id: req.params.pageId } }}, {'pages.$': 1})
-        .exec((err, doc) => {
-            if (err) {
-                res.json(err)
-            } else {
-                res.json(doc.pages[0])
-            }
-        })
+        const pageId = req.params.pageId
+        const book = await Book.findOne({ 'pages._id': pageId }, { 'pages.$': 1 })
+
+        if (!book) {
+            return res.status(404).json({ success: false, error: 'Page not found' })
+        }
+
+        const page = book.pages[0]
+        res.json(page)
     } catch (err) {
-        res.status(404).json({ success: false, error: err })
+        res.status(500).json({ success: false, error: err.message })
     }
 })
+
 
 router.get('/updateDate',async (req, res) => {
     try {
         const data = await Book.updateOne({'profile.book_title':'Assorted'},{$set:{'profile.created_at': Date.now()}})
         res.send(data)
     } catch (error) {
-        console.log(err);
+        console.log(err)
     }
 })
 
