@@ -16,6 +16,7 @@ const note = {noteList: [{
 
 
 router.post('/:pageId', (req, res) => {
+    try {
     const query = {
         'pages': { $elemMatch: { _id: req.params.pageId } }
     }
@@ -33,15 +34,15 @@ router.post('/:pageId', (req, res) => {
         new: true,
         arrayFilters: [{ 'page._id': req.params.pageId }]
     }
-    Book.findOneAndUpdate(query, update, options)
-    .then(result => {
-        console.log('There is');
-        if (!result) return res.status(404).json({ success: false, error: 'Page or List not found' })
-        res.json(result.pages.id(req.params.pageId))
-    }).catch(err => {
-        console.log(err);
-        res.status(404).json({ success: false, error: err })
+    Book.findOneAndUpdate(query, update, options, (err, book) => {
+        if (err) throw new Error(err)
+        if (!book) return res.status(404).json({ success: false, error: 'Page or List not found' })
+        res.json(book.pages.id(req.params.pageId))
     })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, error: 'Internal server error' })
+    }
 })
 
 router.put('/:pageId/:noteId', (req, res) => {

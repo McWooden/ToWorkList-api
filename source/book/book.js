@@ -21,7 +21,7 @@ router.get('/:userId', (req, res) => {
 
         const filteredData = book.map(data => {
             let isAdmin = data.profile.author?._id.equals(req.params.userId) || data.users.find(user => user?._id?.equals(req.params.userId)).isAdmin || false
-            return { profile: data.profile, _id: data._id, isAdmin: isAdmin }
+            return { profile: data.profile, _id: data._id, isAdmin: isAdmin, page: {detail: data.pages[0].details, _id: data.pages[0]._id} }
         })
 
         res.send(filteredData)
