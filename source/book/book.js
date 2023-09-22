@@ -21,9 +21,10 @@ router.get('/:userId', (req, res) => {
 
         const filteredData = book.map(data => {
             let isAdmin = data.profile.author?._id.equals(req.params.userId) || data.users.find(user => user?._id?.equals(req.params.userId)).isAdmin || false
-            return { profile: data.profile, _id: data._id, isAdmin: isAdmin, page: {detail: data.pages[0].details, _id: data.pages[0]._id} }
+            let firstPage = data.pages.find(x => x.order === 0)
+            return { profile: data.profile, _id: data._id, isAdmin: isAdmin, page: {detail: firstPage?.details || data.pages[0].details, _id: firstPage?._id || data.pages[0]._id} }
         })
-
+        
         res.send(filteredData)
     })
 })
@@ -106,14 +107,16 @@ router.put('/leave/:bookId', (req, res) => {
         }
     }
 
-    Book.findByIdAndUpdate(bookId, removeUserUpdate)
-    .then(result => {
-        if (result) return res.json({msg: 'ok'})
-        res.json({msg: 'user doesnt exist'})
-    }).catch(error => {
+    try {
+        Book.findByIdAndUpdate(bookId, removeUserUpdate, (err, book) => {
+            if (err) throw new Error(err)
+            if (Boolean(req.query.returnMember)) return res.json({msg: 'ok', member: book.users})
+            res.json({msg: 'ok'})
+        })
+    } catch (error) {
         console.error('Error:', error)
         res.status(500).json({ msg: 'Server Error' })
-    })
+    }
 })
 
 
