@@ -1,7 +1,7 @@
 import express from 'express'
 const router = express.Router()
 import mongoose from "mongoose"
-import { Book } from '../database/schema.js'
+import Book from '../database/schema/BookSchema.js'
 
 router.put('/pages/:bookId', async (req, res) => {
     const { newOrder } = req.body

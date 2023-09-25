@@ -1,5 +1,5 @@
 import mongoose from "mongoose"
-export const Book = mongoose.model('books', {
+const BookSchema = new mongoose.Schema({
     profile: {
         book_title: String,
         avatar_url: String,
@@ -115,93 +115,5 @@ export const Book = mongoose.model('books', {
         _id: mongoose.Schema.Types.ObjectId
     }],
 })
-export const User = mongoose.model('users', {
-    name: String,
-    nickname: String,
-    avatar: String,
-    email: String,
-    password: String,
-    created_at: {type: Date, default: Date.now},
-    panggilan: String,
-    tempat: String,
-    posisi: String,
-    kota: String,
-    negara: String,
-    tag: String,
-    bio: String,
-    label: [String],
-    last_changes: {
-        nickname_change_date: {
-            type: Date,
-            default: null
-        },
-        password_change_date: {
-            type: Date,
-            default: null
-        },
-    },
-    pengikut: [mongoose.Schema.Types.ObjectId]
-})
-const mailSchema = new mongoose.Schema({
-    pengirim: {type: {
-        nama: {type: String, default: 'Anonymous'},
-        avatar: String,
-        _id: mongoose.Schema.Types.ObjectId,
-    }, default: {
-        nama: 'Anonymous',
-        _id: 'anon'
-    }},
-    penerima: [Object], default: [],
-    subjek: {type: String, default: 'Tanpa Subject'},
-    body: {type: String, default: 'Kosong'},
-    dibaca: {type: [mongoose.Schema.Types.ObjectId], default: []},
-    createdAt: {
-        type: Date,
-        default: Date.now,
-        expires: '14d'
-    },
-    balasan: {
-        type: [Object],
-        default: []
-    }
-})
-export const Mail = mongoose.model('email', mailSchema)
-
-export const DailyTask = mongoose.model('dailyTask', {
-    detail: {
-        title: String,
-        desc: {type: String, default: ''},
-        createdAt: {
-            type: Date,
-            default: Date.now,
-        }
-    },
-    list: [{
-        title: {type: String, default: 'empty'},
-        check: [mongoose.Schema.Types.ObjectId],
-        order: {type: Number, default: 1},
-    }],
-    author: {
-        name: String,
-        _id: mongoose.Schema.Types.ObjectId,
-    },
-    followers: [{
-        name: String,
-        avatar: String, 
-        bestScore: {
-            date: {
-                type: Date,
-                default: Date.now
-            },
-            score: {
-                type: Number,
-                default: 0
-            }
-        },
-        _id: mongoose.Schema.Types.ObjectId
-    }],
-    currentDate: {
-        type: Date,
-        default: Date.now
-    }
-})
+const Book = mongoose.model('books', BookSchema)
+export default Book

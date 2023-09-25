@@ -1,6 +1,6 @@
 import express from 'express'
 const router = express.Router()
-import { Book } from '../database/schema.js'
+import Book from '../database/schema/BookSchema.js'
 import { supabase } from '../database/mongoose.js'
 import cloneDeep from 'lodash.clonedeep'
 
@@ -275,7 +275,7 @@ router.put('/daily/reverse/:pageId/:taskId/:listId', async (req, res) => {
         res.json({ task: task })
     } catch (err) {
         console.error(err)
-        res.status(500).json({ error: 'Internal server error' })
+        res.status(500).json({ error: 'koInternal server error' })
     }
 })
 
@@ -336,6 +336,28 @@ router.get('/daily/reset', async (req, res) => {
     }
 })
 
+router.get('/sortHistoryByDate', async (req, res) => {
+    try {
+      const book = await Book.findOne({ _id: '6434df1029e0cc9682b1571c' })
+  
+      if (!book) {
+        return res.status(404).json({ error: 'Book not found' })
+      }
+  
+      book.pages.forEach((page) => {
+        page.history.forEach((history) => {
+          history.box.sort((a, b) => a.date - b.date)
+        })
+      })
+  
+      await book.save()
+  
+      res.json(book)
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  })
+  
 
 
 router.get('/resetAllHistory', async (req, res) => {

@@ -1,6 +1,6 @@
 import express from 'express'
 const router = express.Router()
-import { Book } from '../database/schema.js'
+import Book from '../database/schema/BookSchema.js'
 import { supabase } from '../database/mongoose.js'
 import { supabaseAndDuplexTrue } from '../database/mongoose.js'
 

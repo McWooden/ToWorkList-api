@@ -1,5 +1,7 @@
 import express from 'express'
-import { Book, User, DailyTask } from '../database/schema.js'
+import Book from '../database/schema/BookSchema.js'
+import User from '../database/schema/UserSchema.js'
+import DailyTask from '../database/schema/DailyTaskSchema.js'
 const router = express.Router()
 
 router.get('/key', async (req, res) => {

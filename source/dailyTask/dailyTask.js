@@ -1,5 +1,5 @@
 import express from 'express'
-import { DailyTask } from '../database/schema.js'
+import DailyTask from '../database/schema/DailyTaskSchema.js'
 const router = express.Router()
 
 router.get('/all', async (req, res) => {

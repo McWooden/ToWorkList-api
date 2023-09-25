@@ -1,6 +1,6 @@
 import express from 'express'
 const router = express.Router()
-import { Mail } from '../database/schema.js'
+import Mail from '../database/schema/mailSchema.js'
 
 router.get('/deleteAll', async (req, res) => {
     Mail.deleteMany({}, (err, mail) => {

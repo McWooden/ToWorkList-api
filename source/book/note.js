@@ -1,7 +1,7 @@
 import express, { query } from 'express'
 const router = express.Router()
 import mongoose from "mongoose"
-import { Book } from '../database/schema.js'
+import Book from '../database/schema/BookSchema.js'
 
 const note = {noteList: [{
     context: String,

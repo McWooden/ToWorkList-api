@@ -1,6 +1,6 @@
 import express from 'express'
 const router = express.Router()
-import { Book } from '../database/schema.js'
+import Book from '../database/schema/BookSchema.js'
 
 router.post('/:pageId/:listId', (req, res) => {
     const query = {

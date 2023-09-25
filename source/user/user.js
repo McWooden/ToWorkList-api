@@ -1,6 +1,6 @@
 import express from 'express'
 const router = express.Router()
-import { User } from '../database/schema.js'
+import User from '../database/schema/UserSchema.js'
 import { encrypt, generate4DigitNumber } from '../utils/utils.js'
 import jwt_decode from "jwt-decode"
 

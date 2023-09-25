@@ -5,7 +5,7 @@ const router = express.Router()
 const storage = multer.memoryStorage()
 const upload = multer({storage: storage})
 import sharp from 'sharp'
-import { Book } from '../database/schema.js'
+import Book from '../database/schema/BookSchema.js'
 
 router.post('/addBook', upload.single('image'), async (req, res) => {
     try {
