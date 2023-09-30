@@ -126,7 +126,7 @@ router.get('/:bookId/get/pages/details', (req, res) => {
         if(err) {
             return res.status(500).send(err)
         }
-        let isAdmin = pages.profile.author?._id.equals(req.params.userId) || pages.users.find(user => user?._id?.equals(req.query.userId))?.isAdmin || false
+        let isAdmin = pages.profile.author?._id.equals(req.query.userId) || pages.users.find(user => user?._id?.equals(req.query.userId))?.isAdmin || false
         res.json({pages: pages, isAdmin})
     })
 })

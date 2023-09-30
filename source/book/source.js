@@ -4,23 +4,7 @@ import Book from '../database/schema/BookSchema.js'
 import { supabase } from '../database/mongoose.js'
 import cloneDeep from 'lodash.clonedeep'
 
-// get source
-router.get('/list/:pageId/:listId', (req, res) => {
-    Book.findOne({ 'pages._id': req.params.pageId }, { 'pages.$': 1 })
-    .then(result => {
-        const page = result.pages[0]
-        const list = page.list.id(req.params.listId)
-        if (list) {
-            res.json(list)
-        } else {
-            res.status(404).json({ success: false, error: 'List not found' })
-        }
-    })
-    .catch(err => res.status(404).json({ success: false, error: err }))
-})
-
-// get page
-router.get('/page/:pageId', async (req, res) => {
+const findPageById = async (req, res, next) => {
     try {
         const pageId = req.params.pageId
         const book = await Book.findOne({ 'pages._id': pageId }, { 'pages.$': 1 })
@@ -29,12 +13,30 @@ router.get('/page/:pageId', async (req, res) => {
             return res.status(404).json({ success: false, error: 'Page not found' })
         }
 
-        const page = book.pages[0]
-        res.json(page)
+        req.page = book.pages[0]
+        next()
     } catch (err) {
         res.status(500).json({ success: false, error: err.message })
     }
+}
+
+// get list
+router.get('/list/:pageId/:listId', findPageById, (req, res) => {
+    const listId = req.params.listId;
+    const list = req.page.list.id(listId)
+
+    if (list) {
+        res.json(list)
+    } else {
+        res.status(404).json({ success: false, error: 'List not found' })
+    }
 })
+
+// get page
+router.get('/page/:pageId', findPageById, (req, res) => {
+    res.json(req.page);
+})
+
 
 
 router.get('/updateDate',async (req, res) => {
