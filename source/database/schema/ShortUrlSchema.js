@@ -1,12 +1,11 @@
 import mongoose from "mongoose"
-import { nanoid } from "nanoid"
 const ShortUrlSchema = new mongoose.Schema({
     origin: {
         bookId: {type: mongoose.Schema.Types.ObjectId, default: null},
         pageId: {type: mongoose.Schema.Types.ObjectId, default: null},
         todoId: {type: mongoose.Schema.Types.ObjectId, default: null}
     },
-    short: {type: String, default: nanoid()},
+    short: {type: String, default: ''},
     createdAt: {
         type: Date,
         default: Date.now,

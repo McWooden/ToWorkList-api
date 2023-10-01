@@ -26,16 +26,6 @@ router.post('/', async (req, res) => {
         let existShort = await ShortUrl.findOne(findOption).exec()
 
         if (existShort) return res.json({short: existShort})
-        
-        // if (existShort) {
-        //     const book = await Book.findById(existShort).exec()
-        //     const page = book.pages.id(existShort.origin.pageId)
-        //     if (existShort.origin.todoId) {
-        //         return res.json(page.list.id(existShort.origin.todoId))
-        //     } else {
-        //         return res.json(page.list.id(existShort.origin.todoId))
-        //     }
-        // }
 
         let shortUrl = nanoid()
 
