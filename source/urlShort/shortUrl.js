@@ -40,6 +40,7 @@ router.post('/', async (req, res) => {
 
         res.json({ short: newShortUrl })
     } catch (error) {
+        console.log(error)
         res.status(500).json({ error: 'Internal server error' })
     }
 })

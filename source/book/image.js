@@ -208,7 +208,10 @@ router.post('/:bookId/:pageId/:listId', upload.single('image'), async (req, res)
             'pages.$[page].list.$[list].images': {
                 pic: data.path,
                 desc: req.body.desc,
-                by: req.body.nickname
+                by: {
+                    nickname: req.body.nickname,
+                    _id: req.body._id
+                }
             }
         }
         }
