@@ -27,18 +27,19 @@ router.post('/', async (req, res) => {
 
         if (existShort) return res.json({short: existShort})
 
-        let shortUrl = nanoid()
+        let shortUrl = nanoid(21)
 
         const newShortUrl = new ShortUrl({
             origin,
             short: shortUrl,
         })
 
+        console.log(shortUrl)
+
         await newShortUrl.save()
 
         res.json({ short: newShortUrl })
     } catch (error) {
-        console.error(error)
         res.status(500).json({ error: 'Internal server error' })
     }
 })
