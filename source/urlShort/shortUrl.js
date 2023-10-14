@@ -14,6 +14,7 @@ router.post('/', async (req, res) => {
             pageId: pageId,
             todoId: todoId,
         }
+        
 
         let findOption
         
@@ -28,13 +29,11 @@ router.post('/', async (req, res) => {
         if (existShort) return res.json({short: existShort})
 
         let shortUrl = nanoid(21)
-
+ 
         const newShortUrl = new ShortUrl({
             origin,
             short: shortUrl,
         })
-
-        console.log(shortUrl)
 
         await newShortUrl.save()
 

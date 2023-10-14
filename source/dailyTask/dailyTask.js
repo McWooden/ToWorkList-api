@@ -64,7 +64,7 @@ router.put('/follow/:taskId/:userId', async (req, res) => {
         if (!daily) return res.status(404).json({ error: 'Task not found' })
 
         const userId = req.params.userId
-        const userExists = daily.followers.id(userId)
+        let userExists = Boolean(daily.followers.id(userId))
 
         if (userExists) {
             daily.followers.remove(userId)
@@ -72,34 +72,12 @@ router.put('/follow/:taskId/:userId', async (req, res) => {
             daily.followers.push({_id: userId, ...req.body})
         }
         await daily.save()
+        userExists = Boolean(daily.followers.id(userId))
         res.json({ isFollow: userExists })
     } catch (err) {
         console.error(err)
         res.status(500).json({ error: 'Internal server error' })
     }
-})
-
-router.post('/follow/:dailyTaskId', (req, res) => {
-    const newFollowers = req.body
-    DailyTask.findById(req.params.dailyTaskId, (err, daily) => {
-        if (err) return res.send('Tugas harian tidak ditemukan)')
-        const userExists = daily.followers.some(user => user._id === newFollowers._id)
-        if (userExists) return res.json({message: 'Anda sudah mengikuti'})
-        const update = {
-            $addToSet: {
-                'followers': {
-                    name: newFollowers.nickname,
-                    avatar: newFollowers.avatar, 
-                    _id: newFollowers._id,
-                }
-            }
-        }
-        const options = {new: true}
-        DailyTask.findByIdAndUpdate(req.params.dailyTaskId, update, options, (err, updatedDaily) => {
-            if (err) res.send('Kesalahan pada update)')
-            res.json({message: 'Anda sudah terdaftar, silahkan segarkan tugas sekarang!'})
-        })
-    })
 })
 
 router.post('/create', async (req, res) => {
@@ -122,59 +100,6 @@ router.delete('/:dailyTaskId', async (req, res) => {
     } catch (err) {
         return res.status(500).json({ success: false, error: err.message })
     }
-})
-
-
-router.get('/createOne', async (req, res) => {
-    const data = new DailyTask({
-        detail: {
-            title: 'Sholat Wajib',
-        },
-        list: [
-            {
-                title: 'Subuh',
-                subTitle: 'Dilakukan sebelum matahari terbit, yaitu dari fajar hingga sebelum terbitnya matahari',
-                check: [],
-                order: 999
-            },
-            {
-                title: 'Dzuhur',
-                subTitle: 'Dilakukan saat matahari sudah condong ke barat setelah melewati tepat di atas kepala, yaitu pada waktu tengah hari',
-                check: [],
-                order: 2
-            },
-            {
-                title: 'Ashar',
-                subTitle: 'Dilakukan pada waktu sore sebelum matahari terbenam sepenuhnya',
-                check: [],
-                order: 3
-            },
-            {
-                title: 'Maghrib',
-                subTitle: 'Dilakukan setelah matahari terbenam sepenuhnya dan waktu senja berakhir',
-                check: [],
-                order: 4
-            },
-            {
-                title: 'Isya',
-                subTitle: 'Dilakukan setelah waktu senja berakhir, biasanya pada malam hari setelah gelap',
-                check: [],
-                order: 5
-            },
-        ],
-        author: {
-            nickname: 'Toworklist',
-        },
-        followers: [{
-            name: 'Toworklist',
-            avatar: 'noAvatar', 
-            bestScore: {
-                score: 1
-            },
-        }],
-    })
-    await data.save()
-    res.json({success: true, data})
 })
 
 export default router

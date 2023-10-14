@@ -27,7 +27,7 @@ router.get('/dailyTask', async (req, res) => {
                 list: x.list.map(x => x.title),
                 followersLength: x.followers.length,
                 author_name: x.author.name,
-                isUserInclude: x.followers.some(user => user._id === req.query.myId),
+                isUserInclude: Boolean(x.followers.id(req.query.myId)),
                 _id: x._id
                 })
         })
