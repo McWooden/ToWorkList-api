@@ -120,7 +120,7 @@ router.put('/leave/:bookId', (req, res) => {
 })
 
 
-// get rooms
+// get pages
 router.get('/:bookId/get/pages/details', (req, res) => {
     Book.findById(req.params.bookId).select('pages.details pages._id pages.order users profile').exec((err, pages) => {
         if(err) {
@@ -177,7 +177,7 @@ router.post('/:bookId/page', (req, res) => {
     Book.findOneAndUpdate(query, update, options)
     .then(result => {
         if (result) {
-            const pagesDetails = result.pages.map(p => ({details: p.details, _id: p._id }))
+            const pagesDetails = result.pages.map(p => ({details: p.details, _id: p._id, order: p.order }))
             res.json({pages: pagesDetails})
         } else {
             res.status(404).json({ success: false, error: 'book or page not found' })
@@ -198,7 +198,7 @@ router.put('/:bookId/page/:pageId', (req, res) => {
     Book.findOneAndUpdate(query, update, options)
     .then(result => {
         if (result) {
-            const pagesDetails = result.pages.map(p => ({details: p.details, _id: p._id }))
+            const pagesDetails = result.pages.map(p => ({details: p.details, _id: p._id, order: p.order }))
             res.json({pages: pagesDetails})
         } else {
             res.status(404).json({ success: false, error: 'book or page not found' })
@@ -230,7 +230,7 @@ router.delete('/:bookId/page/:pageId', async (req, res) => {
             })
             await supabase.storage.from('book').remove(filteredArray)
 
-            const pagesDetails = result.pages.map(p => ({details: p.details, _id: p._id }))
+            const pagesDetails = result.pages.map(p => ({details: p.details, _id: p._id, order: p.order }))
             res.json({pages: pagesDetails})
         } else {
             res.status(404).json({ success: false, error: 'book or page not found' })
