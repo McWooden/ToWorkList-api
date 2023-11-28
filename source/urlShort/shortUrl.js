@@ -1,5 +1,4 @@
 import express from 'express'
-import mongoose from "mongoose"
 import ShortUrl from '../database/schema/ShortUrlSchema.js'
 import Book from '../database/schema/BookSchema.js'
 import { nanoid } from 'nanoid'
@@ -29,7 +28,7 @@ router.post('/', async (req, res) => {
         if (existShort) return res.json({short: existShort})
 
         let shortUrl = nanoid(21)
- 
+
         const newShortUrl = new ShortUrl({
             origin,
             short: shortUrl,
@@ -63,9 +62,9 @@ router.get('/:short', async (req, res) => {
         const page = book.pages.id(short.origin.pageId)
 
         if (short.origin.todoId) {
-            res.json({data: page.list.id(short.origin.listId), type: 'TODO'})
+            res.json({data: page.list.id(short.origin.listId), type: 'TODO', origin: short.origin})
         } else {
-            res.json({data: page, type: page.details.icon})
+            res.json({data: page, type: page.details.icon, origin: short.origin})
         }
     } catch (error) {
         console.error(error)
@@ -79,13 +78,13 @@ router.get('/deleteAll', async (req, res) => {
         await ShortUrl.deleteMany({});
     
         res.status(204).send(); // Send a No Content response
-      } catch (err) {
+    } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Internal server error' });
-      }
+    }
     
-  });
-  
+});
+
 
 
 export default router

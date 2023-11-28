@@ -16,6 +16,7 @@ router.get('/', (req, res) => {
 router.get('/:userId', (req, res) => {
     Book.find({ 'users._id': req.params.userId }, (err, book) => {
         if (err) {
+            console.log('get user book error', err)
             return res.status(500).send(err)
         }
 
