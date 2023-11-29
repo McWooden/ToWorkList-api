@@ -65,7 +65,7 @@ router.post('/addBook', upload.single('image'), async (req, res) => {
             }]
         })
         try {
-            const resizeImage = sharp(req.file.buffer).resize(128,{
+            const resizeImage = sharp(req.file.buffer).resize(128, {
                 fit: 'cover',
             })
             const { data, error} = await supabase.storage.from('book').upload(
@@ -105,9 +105,9 @@ router.post('/jadwal/:bookId/:pageId', upload.single('image'), async (req, res) 
     try {
         const namaLama = req.body.jadwal_url
         const namaBaru = `${req.params.bookId}/${req.params.pageId}/jadwal-${+new Date()}`
-        const resizeImage = sharp(req.file.buffer).resize(1080 ,1920 , {
+        const resizeImage = sharp(req.file.buffer).resize({
+            width: 1080,
             fit: 'contain',
-            withoutEnlargement: true
         })
         const { dataMove, errorMove } = await supabase.storage.from('book').move(namaLama, namaBaru)
         const { data } = await supabase.storage.from('book').upload(
@@ -149,7 +149,7 @@ router.put('/:bookId/pp', upload.single('image'), async (req, res) => {
     try {
         const namaLama = req.body.avatar_url
         const namaBaru = `${req.params.bookId}/avatar-${+new Date()}`
-        const resizeImage = sharp(req.file.buffer).resize(128,{
+        const resizeImage = sharp(req.file.buffer).resize(128, {
             fit: 'cover',
         })
         const { dataMove, errorMove } = await supabase.storage.from('book').move(namaLama, namaBaru)
@@ -175,9 +175,9 @@ router.put('/:bookId/pp', upload.single('image'), async (req, res) => {
 })
 router.post('/:bookId/:pageId/:listId', upload.single('image'), async (req, res) => {
     try {
-        const resizeImage = sharp(req.file.buffer).resize(1080 ,1920 , {
+        const resizeImage = sharp(req.file.buffer).resize({
+            width: 1080,
             fit: 'contain',
-            withoutEnlargement: true
         })
         const { data } = await supabase.storage.from('book').upload(
             `${req.params.bookId}/${req.params.pageId}/${req.params.listId}/${req.body.nickname}-${+new Date()}`,
