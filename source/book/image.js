@@ -67,8 +67,9 @@ router.post('/addBook', upload.single('image'), async (req, res) => {
         try {
             const resizeImage = sharp(req.file.buffer).resize({
                 height: 128,
-            width: 128,
-            fit: 'cover'
+                width: 128,
+                fit: 'cover',
+                withoutEnlargement: true
             })
             const { data, error} = await supabase.storage.from('book').upload(
                 `${book._id}/avatar-${+new Date()}`,
@@ -110,7 +111,8 @@ router.post('/jadwal/:bookId/:pageId', upload.single('image'), async (req, res) 
         const resizeImage = sharp(req.file.buffer).resize({
             height: 1920,
             width: 1080,
-            fit: 'contain'
+            fit: 'contain',
+            withoutEnlargement: true
         })
         const { dataMove, errorMove } = await supabase.storage.from('book').move(namaLama, namaBaru)
         const { data } = await supabase.storage.from('book').upload(
@@ -155,7 +157,8 @@ router.put('/:bookId/pp', upload.single('image'), async (req, res) => {
         const resizeImage = sharp(req.file.buffer).resize({
             height: 128,
             width: 128,
-            fit: 'cover'
+            fit: 'cover',
+            withoutEnlargement: true
         })
         const { dataMove, errorMove } = await supabase.storage.from('book').move(namaLama, namaBaru)
         const { data } = await supabase.storage.from('book').upload(
@@ -183,7 +186,8 @@ router.post('/:bookId/:pageId/:listId', upload.single('image'), async (req, res)
         const resizeImage = sharp(req.file.buffer).resize({
             height: 1920,
             width: 1080,
-            fit: 'contain'
+            fit: 'contain',
+            withoutEnlargement: true
         })
         const { data } = await supabase.storage.from('book').upload(
             `${req.params.bookId}/${req.params.pageId}/${req.params.listId}/${req.body.nickname}-${+new Date()}`,
